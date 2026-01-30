@@ -33,6 +33,8 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/",
+                                "/*.html",
                                 "/api/auth/**",
                                 "/api/albums/shared/**",
                                 "/api/health",
