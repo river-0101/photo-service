@@ -187,4 +187,11 @@ public class PhotoService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
+
+    public List<Photo> getPhotosByAlbumId(Long albumId) {
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ALBUM_NOT_FOUND));
+
+        return photoRepository.findByAlbumOrderByCreatedAtDesc(album);
+    }
 }

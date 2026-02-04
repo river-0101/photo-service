@@ -1,6 +1,7 @@
 package com.nhn.cloud.photoservice.service;
 
 import com.nhn.cloud.photoservice.domain.album.Album;
+import com.nhn.cloud.photoservice.domain.photo.Photo;
 import com.nhn.cloud.photoservice.domain.user.User;
 import com.nhn.cloud.photoservice.dto.request.AlbumCreateRequest;
 import com.nhn.cloud.photoservice.dto.request.AlbumUpdateRequest;
@@ -157,4 +158,10 @@ public class AlbumService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
+
+    public Album getAlbumByShareToken(String shareToken) {
+        return albumRepository.findByShareToken(shareToken)
+                .orElseThrow(() -> new CustomException(ErrorCode.ALBUM_NOT_FOUND));
+    }
+
 }

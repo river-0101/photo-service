@@ -1,5 +1,7 @@
 package com.nhn.cloud.photoservice.controller;
 
+import com.nhn.cloud.photoservice.domain.album.Album;
+import com.nhn.cloud.photoservice.domain.photo.Photo;
 import com.nhn.cloud.photoservice.dto.request.AlbumCreateRequest;
 import com.nhn.cloud.photoservice.dto.request.AlbumUpdateRequest;
 import com.nhn.cloud.photoservice.dto.request.PhotoUploadRequest;
@@ -14,8 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.nhn.cloud.photoservice.service.ObjectStorageService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/albums")
@@ -24,6 +28,7 @@ public class AlbumController {
 
     private final AlbumService albumService;
     private final PhotoService photoService;
+    private final ObjectStorageService objectStorageService;
 
     /**
      * 앨범 생성
@@ -64,10 +69,23 @@ public class AlbumController {
      */
     @GetMapping("/shared/{shareToken}")
     public ResponseEntity<AlbumResponse> getSharedAlbum(@PathVariable String shareToken) {
-        AlbumResponse response = albumService.getSharedAlbum(shareToken);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(albumService.getSharedAlbum(shareToken));
     }
 
+    @GetMapping("/shared/{shareToken}/photos")
+    public ResponseEntity<List<PhotoResponse>> getSharedAlbumPhotos(@PathVariable String shareToken) {
+        Album album = albumService.getAlbumByShareToken(shareToken);
+        List<Photo> photos = photoService.getPhotosByAlbumId(album.getId());
+
+        return ResponseEntity.ok(
+                photos.stream()
+                        .map(photo -> {
+                            String downloadUrl = objectStorageService.generatePresignedUrl(photo.getStorageKey());
+                            return PhotoResponse.from(photo, downloadUrl);
+                        })
+                        .collect(Collectors.toList())
+        );
+    }
     /**
      * 앨범 수정
      */

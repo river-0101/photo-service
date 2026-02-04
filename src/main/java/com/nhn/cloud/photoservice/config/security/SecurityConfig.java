@@ -35,8 +35,11 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/",
                                 "/*.html",
+                                "/shared.html",
+                                "/static/**",
                                 "/api/auth/**",
                                 "/api/albums/shared/**",
+                                "/api/albums/*/photos",
                                 "/api/health",
                                 "/actuator/**",
                                 "/error"
