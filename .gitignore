@@ -31,3 +31,15 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Secrets & Credentials ###
+*.pem
+*.env
+photo-service.env
+
+### OS ###
+.DS_Store
+
+### Docker artifacts ###
+*.tar
+*.zip

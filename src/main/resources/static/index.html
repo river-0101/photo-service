@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Service</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+            background: #f8f9fa;
+            color: #202124;
+            min-height: 100vh;
+        }
+
+        /* 로그인 페이지 */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .auth-box {
+            background: white;
+            padding: 48px 40px 36px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .auth-logo h1 {
+            font-size: 24px;
+            font-weight: 400;
+            color: #5f6368;
+        }
+
+        .auth-logo .logo-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #5f6368;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #1765cc;
+        }
+
+        .btn-text {
+            background: none;
+            border: none;
+            color: #1a73e8;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .auth-divider {
+            text-align: center;
+            margin: 24px 0;
+            color: #5f6368;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* 메인 레이아웃 */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 헤더 */
+        .header {
+            background: white;
+            border-bottom: 1px solid #dadce0;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-title {
+            font-size: 22px;
+            color: #5f6368;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #1a73e8;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .user-name {
+            font-size: 14px;
+            color: #5f6368;
+        }
+
+        /* 사이드바 + 메인 콘텐츠 */
+        .main-layout {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: white;
+            border-right: 1px solid #dadce0;
+            padding: 16px 0;
+        }
+
+        .sidebar-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+            color: #5f6368;
+            transition: background 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background: #f1f3f4;
+        }
+
+        .sidebar-item.active {
+            background: #e8f0fe;
+            color: #1a73e8;
+            border-right: 3px solid #1a73e8;
+        }
+
+        .sidebar-icon {
+            font-size: 20px;
+        }
+
+        /* 메인 콘텐츠 */
+        .content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .content-title {
+            font-size: 28px;
+            font-weight: 400;
+            color: #202124;
+        }
+
+        .btn-action {
+            padding: 10px 24px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-action:hover {
+            background: #1765cc;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        }
+
+        /* 앨범 그리드 */
+        .albums-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .album-card {
+            background: white;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+
+        .album-card:hover {
+            box-shadow: 0 1px 3px rgba(60,64,67,0.3), 0 4px 8px rgba(60,64,67,0.15);
+            transform: translateY(-2px);
+        }
+
+        .album-thumbnail {
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+        }
+
+        .album-info {
+            padding: 16px;
+        }
+
+        .album-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .album-meta {
+            font-size: 12px;
+            color: #5f6368;
+            margin-bottom: 8px;
+        }
+
+        .album-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border: 1px solid #dadce0;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-small:hover {
+            background: #f1f3f4;
+        }
+
+        .btn-small.danger {
+            color: #d93025;
+            border-color: #d93025;
+        }
+
+        .btn-small.danger:hover {
+            background: #fce8e6;
+        }
+
+        /* 사진 그리드 (구글 포토 스타일) */
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 4px;
+            margin-top: 16px;
+        }
+
+        .photo-card {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+            cursor: pointer;
+            background: #f1f3f4;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .photo-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .photo-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            padding: 16px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .photo-card:hover .photo-overlay {
+            opacity: 1;
+        }
+
+        .photo-title {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .photo-info {
+            color: rgba(255,255,255,0.8);
+            font-size: 12px;
+        }
+
+        .photo-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .photo-card:hover .photo-actions {
+            opacity: 1;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: white;
+        }
+
+        .btn-icon.danger {
+            color: #d93025;
+        }
+
+        /* 모달 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 0;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #dadce0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: none;
+            font-size: 24px;
+            color: #5f6368;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #f1f3f4;
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #dadce0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .btn-secondary {
+            padding: 8px 16px;
+            background: white;
+            color: #1a73e8;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f3f4;
+        }
+
+        /* 알림 메시지 */
+        .message {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .message.error {
+            background: #fce8e6;
+            color: #d93025;
+        }
+
+        .message.success {
+            background: #e6f4ea;
+            color: #137333;
+        }
+
+        /* 빈 상태 */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #5f6368;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #202124;
+        }
+
+        .empty-description {
+            font-size: 14px;
+            color: #5f6368;
+        }
+
+        /* 라이트박스 */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .lightbox-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            position: relative;
+        }
+
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .lightbox-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            padding: 24px;
+            color: white;
+        }
+
+        .lightbox-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .lightbox-description {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 8px;
+        }
+
+        .lightbox-meta {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+
+        .lightbox-close:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.5);
+            transform: scale(1.1);
+        }
+
+        .lightbox-actions {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .lightbox-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+
+        .lightbox-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.5);
+            transform: scale(1.1);
+        }
+
+        .lightbox-btn.danger:hover {
+            background: rgba(217, 48, 37, 0.8);
+            border-color: #d93025;
+        }
+
+        /* 공유 모달 */
+        .share-url-box {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .share-url-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 14px;
+            background: #f8f9fa;
+        }
+
+        .btn-copy {
+            padding: 12px 24px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-copy:hover {
+            background: #1765cc;
+        }
+
+        .share-info {
+            margin-top: 12px;
+            padding: 12px;
+            background: #e8f0fe;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #1967d2;
+        }
+
+        .share-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+<!-- 로그인/회원가입 -->
+<div id="authSection" class="auth-container">
+    <div class="auth-box">
+        <div class="auth-logo">
+            <div class="logo-icon">📸</div>
+            <h1>Photo Service</h1>
+        </div>
+
+        <div id="authMessage"></div>
+
+        <!-- 로그인 폼 -->
+        <div id="loginForm">
+            <div class="form-group">
+                <label>이메일</label>
+                <input type="email" id="loginEmail" class="form-input" placeholder="email@example.com">
+            </div>
+            <div class="form-group">
+                <label>비밀번호</label>
+                <input type="password" id="loginPassword" class="form-input" placeholder="비밀번호">
+            </div>
+            <button onclick="login()" class="btn-primary">로그인</button>
+            <div class="auth-divider">또는</div>
+            <button onclick="showSignup()" class="btn-text" style="width: 100%;">계정 만들기</button>
+        </div>
+
+        <!-- 회원가입 폼 -->
+        <div id="signupForm" class="hidden">
+            <div class="form-group">
+                <label>이름</label>
+                <input type="text" id="signupName" class="form-input" placeholder="홍길동">
+            </div>
+            <div class="form-group">
+                <label>이메일</label>
+                <input type="email" id="signupEmail" class="form-input" placeholder="email@example.com">
+            </div>
+            <div class="form-group">
+                <label>비밀번호</label>
+                <input type="password" id="signupPassword" class="form-input" placeholder="비밀번호">
+            </div>
+            <button onclick="signup()" class="btn-primary">가입하기</button>
+            <div class="auth-divider">이미 계정이 있으신가요?</div>
+            <button onclick="showLogin()" class="btn-text" style="width: 100%;">로그인</button>
+        </div>
+    </div>
+</div>
+
+<!-- 메인 앱 -->
+<div id="mainSection" class="app-container hidden">
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-left">
+            <div class="header-title">
+                <span>📸</span>
+                <span>Photo Service</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar"></div>
+                <span class="user-name" id="userName"></span>
+                <button onclick="logout()" class="btn-text">로그아웃</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 레이아웃 -->
+    <div class="main-layout">
+        <!-- 사이드바 -->
+        <aside class="sidebar">
+            <div class="sidebar-item active" onclick="showAlbumsView()">
+                <span class="sidebar-icon">📁</span>
+                <span>앨범</span>
+            </div>
+            <div class="sidebar-item" onclick="showAllPhotosView()">
+                <span class="sidebar-icon">🖼️</span>
+                <span>모든 사진</span>
+            </div>
+        </aside>
+
+        <!-- 콘텐츠 -->
+        <main class="content">
+            <!-- 앨범 뷰 -->
+            <div id="albumsView">
+                <div class="content-header">
+                    <h1 class="content-title">앨범</h1>
+                    <button onclick="showCreateAlbumModal()" class="btn-action">
+                        <span>+</span>
+                        <span>새 앨범</span>
+                    </button>
+                </div>
+                <div id="albumsGrid" class="albums-grid"></div>
+            </div>
+
+            <!-- 앨범 상세 뷰 -->
+            <div id="albumDetailView" class="hidden">
+                <div class="content-header">
+                    <div>
+                        <button onclick="backToAlbums()" class="btn-text" style="margin-bottom: 8px;">← 앨범으로 돌아가기</button>
+                        <h1 class="content-title" id="albumDetailTitle"></h1>
+                    </div>
+                    <button onclick="showUploadPhotoModal()" class="btn-action">
+                        <span>+</span>
+                        <span>사진 추가</span>
+                    </button>
+                </div>
+                <div id="albumPhotosGrid" class="photos-grid"></div>
+            </div>
+
+            <!-- 모든 사진 뷰 -->
+            <div id="allPhotosView" class="hidden">
+                <div class="content-header">
+                    <h1 class="content-title">모든 사진</h1>
+                </div>
+                <div id="allPhotosGrid" class="photos-grid"></div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- 앨범 생성 모달 -->
+<div id="createAlbumModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">새 앨범 만들기</h3>
+            <button class="modal-close" onclick="closeCreateAlbumModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div id="createAlbumMessage"></div>
+            <div class="form-group">
+                <label>앨범 제목</label>
+                <input type="text" id="albumTitle" class="form-input" placeholder="여름 휴가">
+            </div>
+            <div class="form-group">
+                <label>설명 (선택)</label>
+                <textarea id="albumDescription" class="form-input" rows="3" placeholder="앨범에 대한 설명을 입력하세요"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeCreateAlbumModal()" class="btn-secondary">취소</button>
+            <button onclick="createAlbum()" class="btn-primary" style="padding: 8px 24px;">만들기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 사진 업로드 모달 -->
+<div id="uploadPhotoModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">사진 업로드</h3>
+            <button class="modal-close" onclick="closeUploadPhotoModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div id="uploadPhotoMessage"></div>
+            <div class="form-group">
+                <label>사진 선택</label>
+                <input type="file" id="photoFile" class="form-input" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label>제목</label>
+                <input type="text" id="photoTitle" class="form-input" placeholder="사진 제목">
+            </div>
+            <div class="form-group">
+                <label>설명 (선택)</label>
+                <textarea id="photoDescription" class="form-input" rows="3" placeholder="사진에 대한 설명"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeUploadPhotoModal()" class="btn-secondary">취소</button>
+            <button onclick="uploadPhoto()" class="btn-primary" style="padding: 8px 24px;">업로드</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = '/api';
+    let accessToken = localStorage.getItem('accessToken');
+    let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    let selectedAlbumId = null;
+    let currentView = 'albums';
+
+    window.onload = () => {
+        if (accessToken && currentUser) {
+            showMainSection();
+            loadAlbums();
+        }
+    };
+
+    async function login() {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        try {
+            const response = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                accessToken = data.accessToken;
+                currentUser = { userId: data.userId, name: data.name, email: data.email };
+
+                localStorage.setItem('accessToken', accessToken);
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                showMainSection();
+                loadAlbums();
+            } else {
+                showAuthMessage('로그인 실패: 이메일 또는 비밀번호를 확인하세요', 'error');
+            }
+        } catch (error) {
+            showAuthMessage('로그인 중 오류가 발생했습니다', 'error');
+        }
+    }
+
+    async function signup() {
+        const name = document.getElementById('signupName').value;
+        const email = document.getElementById('signupEmail').value;
+        const password = document.getElementById('signupPassword').value;
+
+        try {
+            const response = await fetch(`${API_URL}/auth/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            if (response.ok) {
+                showAuthMessage('회원가입 성공! 로그인해주세요', 'success');
+                showLogin();
+            } else {
+                showAuthMessage('회원가입 실패: 이미 존재하는 이메일입니다', 'error');
+            }
+        } catch (error) {
+            showAuthMessage('회원가입 중 오류가 발생했습니다', 'error');
+        }
+    }
+
+    function logout() {
+        localStorage.clear();
+        location.reload();
+    }
+
+    async function loadAlbums() {
+        try {
+            const response = await fetch(`${API_URL}/albums`, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+
+            if (response.ok) {
+                const albums = await response.json();
+                displayAlbums(albums);
+            }
+        } catch (error) {
+            console.error('앨범 로드 실패:', error);
+        }
+    }
+
+    function displayAlbums(albums) {
+        const grid = document.getElementById('albumsGrid');
+
+        if (albums.length === 0) {
+            grid.innerHTML = `
+            <div class="empty-state" style="grid-column: 1/-1;">
+                <div class="empty-icon">📁</div>
+                <div class="empty-title">앨범이 없습니다</div>
+                <div class="empty-description">첫 번째 앨범을 만들어보세요</div>
+            </div>
+        `;
+            return;
+        }
+
+        grid.innerHTML = albums.map(album => `
+        <div class="album-card" onclick="selectAlbum(${album.id}, '${album.title.replace(/'/g, "\\'")}')">
+            <div class="album-thumbnail">📷</div>
+            <div class="album-info">
+                <div class="album-title">${album.title}</div>
+                <div class="album-meta">${album.description || '설명 없음'}</div>
+                <div class="album-meta">${new Date(album.createdAt).toLocaleDateString()}</div>
+                ${album.shareEnabled ? `<div class="album-meta" style="color: #1a73e8;">🔗 공유 중</div>` : ''}
+                <div class="album-actions">
+                    <button onclick="event.stopPropagation(); showShareModal(${album.id}, '${album.title.replace(/'/g, "\\'")}', ${album.shareEnabled}, '${album.shareToken || ''}')" class="btn-small">
+                        ${album.shareEnabled ? '공유 관리' : '공유하기'}
+                    </button>
+                    <button onclick="event.stopPropagation(); deleteAlbum(${album.id})" class="btn-small danger">삭제</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    }
+
+    async function selectAlbum(albumId, albumTitle) {
+        selectedAlbumId = albumId;
+        document.getElementById('albumDetailTitle').textContent = albumTitle;
+
+        document.getElementById('albumsView').classList.add('hidden');
+        document.getElementById('albumDetailView').classList.remove('hidden');
+        document.getElementById('allPhotosView').classList.add('hidden');
+
+        try {
+            const response = await fetch(`${API_URL}/albums/${albumId}/photos`, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+
+            if (response.ok) {
+                const photos = await response.json();
+                displayAlbumPhotos(photos);
+            }
+        } catch (error) {
+            console.error('사진 로드 실패:', error);
+        }
+    }
+
+    function displayAlbumPhotos(photos) {
+        const grid = document.getElementById('albumPhotosGrid');
+
+        if (photos.length === 0) {
+            grid.innerHTML = `
+            <div class="empty-state" style="grid-column: 1/-1;">
+                <div class="empty-icon">🖼️</div>
+                <div class="empty-title">사진이 없습니다</div>
+                <div class="empty-description">첫 번째 사진을 업로드해보세요</div>
+            </div>
+        `;
+            return;
+        }
+
+        grid.innerHTML = photos.map(photo => `
+        <div class="photo-card" onclick="openLightbox(${photo.id}, '${photo.downloadUrl}', '${photo.title.replace(/'/g, "\\'")}', '${(photo.description || '').replace(/'/g, "\\'")}', ${photo.fileSize})">
+            <img src="${photo.downloadUrl}" alt="${photo.title}">
+            <div class="photo-overlay">
+                <div class="photo-title">${photo.title}</div>
+                <div class="photo-info">${(photo.fileSize / 1024 / 1024).toFixed(2)} MB</div>
+            </div>
+            <div class="photo-actions">
+                <button onclick="event.stopPropagation(); deletePhoto(${photo.id})" class="btn-icon danger">🗑️</button>
+            </div>
+        </div>
+    `).join('');
+    }
+
+    async function loadAllPhotos() {
+        try {
+            const response = await fetch(`${API_URL}/photos`, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+
+            if (response.ok) {
+                const photos = await response.json();
+                displayAllPhotos(photos);
+            }
+        } catch (error) {
+            console.error('사진 로드 실패:', error);
+        }
+    }
+
+    function displayAllPhotos(photos) {
+        const grid = document.getElementById('allPhotosGrid');
+
+        if (photos.length === 0) {
+            grid.innerHTML = `
+            <div class="empty-state" style="grid-column: 1/-1;">
+                <div class="empty-icon">🖼️</div>
+                <div class="empty-title">사진이 없습니다</div>
+                <div class="empty-description">앨범에 사진을 추가해보세요</div>
+            </div>
+        `;
+            return;
+        }
+
+        grid.innerHTML = photos.map(photo => `
+        <div class="photo-card" onclick="openLightbox(${photo.id}, '${photo.downloadUrl}', '${photo.title.replace(/'/g, "\\'")}', '${(photo.description || '').replace(/'/g, "\\'")}', ${photo.fileSize})">
+            <img src="${photo.downloadUrl}" alt="${photo.title}">
+            <div class="photo-overlay">
+                <div class="photo-title">${photo.title}</div>
+                <div class="photo-info">${(photo.fileSize / 1024 / 1024).toFixed(2)} MB</div>
+            </div>
+            <div class="photo-actions">
+                <button onclick="event.stopPropagation(); deletePhoto(${photo.id})" class="btn-icon danger">🗑️</button>
+            </div>
+        </div>
+    `).join('');
+    }
+
+    async function createAlbum() {
+        const title = document.getElementById('albumTitle').value;
+        const description = document.getElementById('albumDescription').value;
+
+        if (!title) {
+            showMessage('createAlbumMessage', '제목을 입력하세요', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/albums`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title, description })
+            });
+
+            if (response.ok) {
+                closeCreateAlbumModal();
+                loadAlbums();
+            }
+        } catch (error) {
+            showMessage('createAlbumMessage', '앨범 생성 중 오류 발생', 'error');
+        }
+    }
+
+    async function uploadPhoto() {
+        const file = document.getElementById('photoFile').files[0];
+        const title = document.getElementById('photoTitle').value;
+        const description = document.getElementById('photoDescription').value;
+
+        if (!file) {
+            showMessage('uploadPhotoMessage', '사진을 선택하세요', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('title', title || file.name);
+        formData.append('description', description);
+
+        try {
+            const response = await fetch(`${API_URL}/albums/${selectedAlbumId}/photos`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${accessToken}` },
+                body: formData
+            });
+
+            if (response.ok) {
+                closeUploadPhotoModal();
+                selectAlbum(selectedAlbumId, document.getElementById('albumDetailTitle').textContent);
+            }
+        } catch (error) {
+            showMessage('uploadPhotoMessage', '업로드 중 오류 발생', 'error');
+        }
+    }
+
+    async function deleteAlbum(albumId) {
+        if (!confirm('정말 이 앨범을 삭제하시겠습니까?')) return;
+
+        try {
+            const response = await fetch(`${API_URL}/albums/${albumId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+
+            if (response.ok) {
+                loadAlbums();
+            }
+        } catch (error) {
+            alert('삭제 중 오류가 발생했습니다');
+        }
+    }
+
+    async function deletePhoto(photoId) {
+        if (!confirm('정말 이 사진을 삭제하시겠습니까?')) return;
+
+        try {
+            const response = await fetch(`${API_URL}/photos/${photoId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+
+            if (response.ok) {
+                if (currentView === 'albumDetail') {
+                    selectAlbum(selectedAlbumId, document.getElementById('albumDetailTitle').textContent);
+                } else {
+                    loadAllPhotos();
+                }
+            }
+        } catch (error) {
+            alert('삭제 중 오류가 발생했습니다');
+        }
+    }
+
+    function showAlbumsView() {
+        currentView = 'albums';
+        document.getElementById('albumsView').classList.remove('hidden');
+        document.getElementById('albumDetailView').classList.add('hidden');
+        document.getElementById('allPhotosView').classList.add('hidden');
+
+        document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+        document.querySelectorAll('.sidebar-item')[0].classList.add('active');
+    }
+
+    function showAllPhotosView() {
+        currentView = 'allPhotos';
+        document.getElementById('albumsView').classList.add('hidden');
+        document.getElementById('albumDetailView').classList.add('hidden');
+        document.getElementById('allPhotosView').classList.remove('hidden');
+
+        document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+        document.querySelectorAll('.sidebar-item')[1].classList.add('active');
+
+        loadAllPhotos();
+    }
+
+    function backToAlbums() {
+        showAlbumsView();
+    }
+
+    function showMainSection() {
+        document.getElementById('authSection').classList.add('hidden');
+        document.getElementById('mainSection').classList.remove('hidden');
+        document.getElementById('userName').textContent = currentUser.name;
+        document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+    }
+
+    function showLogin() {
+        document.getElementById('loginForm').classList.remove('hidden');
+        document.getElementById('signupForm').classList.add('hidden');
+    }
+
+    function showSignup() {
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('signupForm').classList.remove('hidden');
+    }
+
+    function showCreateAlbumModal() {
+        document.getElementById('createAlbumModal').classList.remove('hidden');
+        document.getElementById('albumTitle').value = '';
+        document.getElementById('albumDescription').value = '';
+    }
+
+    function closeCreateAlbumModal() {
+        document.getElementById('createAlbumModal').classList.add('hidden');
+    }
+
+    function showUploadPhotoModal() {
+        document.getElementById('uploadPhotoModal').classList.remove('hidden');
+        document.getElementById('photoFile').value = '';
+        document.getElementById('photoTitle').value = '';
+        document.getElementById('photoDescription').value = '';
+    }
+
+    function closeUploadPhotoModal() {
+        document.getElementById('uploadPhotoModal').classList.add('hidden');
+    }
+
+    function showAuthMessage(message, type) {
+        const div = document.getElementById('authMessage');
+        div.className = `message ${type}`;
+        div.textContent = message;
+        setTimeout(() => div.textContent = '', 3000);
+    }
+
+    function showMessage(elementId, message, type) {
+        const div = document.getElementById(elementId);
+        div.className = `message ${type}`;
+        div.textContent = message;
+    }
+
+    let currentPhotoId = null;
+    let currentPhotoUrl = null;
+
+    function openLightbox(photoId, url, title, description, fileSize) {
+        currentPhotoId = photoId;
+        currentPhotoUrl = url;
+
+        document.getElementById('lightbox').classList.remove('hidden');
+        document.getElementById('lightboxImage').src = url;
+        document.getElementById('lightboxTitle').textContent = title;
+        document.getElementById('lightboxDescription').textContent = description || '설명 없음';
+        document.getElementById('lightboxMeta').textContent = `크기: ${(fileSize / 1024 / 1024).toFixed(2)} MB`;
+
+        document.addEventListener('keydown', handleLightboxKeydown);
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.add('hidden');
+        document.removeEventListener('keydown', handleLightboxKeydown);
+    }
+
+    function handleLightboxKeydown(e) {
+        if (e.key === 'Escape') {
+            closeLightbox();
+        }
+    }
+
+    function downloadPhoto() {
+        const link = document.createElement('a');
+        link.href = currentPhotoUrl;
+        link.download = document.getElementById('lightboxTitle').textContent;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    async function deletePhotoFromLightbox() {
+        if (!confirm('정말 이 사진을 삭제하시겠습니까?')) return;
+
+        try {
+            const response = await fetch(`${API_URL}/photos/${currentPhotoId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+
+            if (response.ok) {
+                closeLightbox();
+
+                if (currentView === 'albumDetail') {
+                    selectAlbum(selectedAlbumId, document.getElementById('albumDetailTitle').textContent);
+                } else {
+                    loadAllPhotos();
+                }
+            } else {
+                alert('사진 삭제에 실패했습니다');
+            }
+        } catch (error) {
+            alert('삭제 중 오류가 발생했습니다');
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'lightbox') {
+            closeLightbox();
+        }
+    });
+
+    let currentShareAlbumId = null;
+    let currentShareToken = null;
+
+    function showShareModal(albumId, albumTitle, shareEnabled, shareToken) {
+        currentShareAlbumId = albumId;
+        currentShareToken = shareToken;
+
+        document.getElementById('shareModalTitle').textContent = `${albumTitle} 공유`;
+        document.getElementById('shareModal').classList.remove('hidden');
+
+        if (shareEnabled && shareToken) {
+            document.getElementById('shareInactive').classList.add('hidden');
+            document.getElementById('shareActive').classList.remove('hidden');
+            const shareUrl = `${window.location.origin}/shared.html?token=${shareToken}`;
+            document.getElementById('shareUrl').value = shareUrl;
+        } else {
+            document.getElementById('shareInactive').classList.remove('hidden');
+            document.getElementById('shareActive').classList.add('hidden');
+        }
+
+        document.getElementById('shareMessage').innerHTML = '';
+    }
+
+    function closeShareModal() {
+        document.getElementById('shareModal').classList.add('hidden');
+        currentShareAlbumId = null;
+        currentShareToken = null;
+    }
+
+    async function enableShare() {
+        try {
+            const response = await fetch(`${API_URL}/albums/${currentShareAlbumId}/share`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                currentShareToken = data.shareToken;
+
+                // UI 업데이트
+                document.getElementById('shareInactive').classList.add('hidden');
+                document.getElementById('shareActive').classList.remove('hidden');
+                const shareUrl = `${window.location.origin}/shared.html?token=${data.shareToken}`;
+                document.getElementById('shareUrl').value = shareUrl;
+
+                showShareMessage('공유가 활성화되었습니다!', 'success');
+
+                // 앨범 목록 새로고침
+                setTimeout(() => {
+                    loadAlbums();
+                }, 1000);
+            } else {
+                showShareMessage('공유 활성화에 실패했습니다', 'error');
+            }
+        } catch (error) {
+            showShareMessage('공유 활성화 중 오류가 발생했습니다', 'error');
+        }
+    }
+
+    async function disableShare() {
+        if (!confirm('정말 공유를 중지하시겠습니까?\n기존 공유 링크는 더 이상 작동하지 않습니다.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/albums/${currentShareAlbumId}/share`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+
+            if (response.ok) {
+                showShareMessage('공유가 중지되었습니다', 'success');
+
+                // UI 업데이트
+                setTimeout(() => {
+                    closeShareModal();
+                    loadAlbums();
+                }, 1000);
+            } else {
+                showShareMessage('공유 중지에 실패했습니다', 'error');
+            }
+        } catch (error) {
+            showShareMessage('공유 중지 중 오류가 발생했습니다', 'error');
+        }
+    }
+
+    function copyShareUrl() {
+        const urlInput = document.getElementById('shareUrl');
+        urlInput.select();
+        document.execCommand('copy');
+
+        // 복사 완료 피드백
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = '✓ 복사됨';
+        btn.style.background = '#137333';
+
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = '#1a73e8';
+        }, 2000);
+    }
+
+    function openShareUrl() {
+        const url = document.getElementById('shareUrl').value;
+        const token = currentShareToken;
+        window.open(`/shared.html?token=${token}`, '_blank');
+    }
+
+    function showShareMessage(message, type) {
+        const div = document.getElementById('shareMessage');
+        div.className = `message ${type}`;
+        div.textContent = message;
+        setTimeout(() => div.textContent = '', 3000);
+    }
+</script>
+    <!-- 라이트박스 -->
+    <div id="lightbox" class="modal hidden">
+        <div class="lightbox">
+            <button class="lightbox-close" onclick="closeLightbox()">×</button>
+            <div class="lightbox-actions">
+                <button class="lightbox-btn" onclick="downloadPhoto()" title="다운로드">⬇️</button>
+                <button class="lightbox-btn danger" onclick="deletePhotoFromLightbox()" title="삭제">🗑️</button>
+            </div>
+            <div class="lightbox-content">
+                <img id="lightboxImage" class="lightbox-image" src="" alt="">
+                <div class="lightbox-info">
+                    <div class="lightbox-title" id="lightboxTitle"></div>
+                    <div class="lightbox-description" id="lightboxDescription"></div>
+                    <div class="lightbox-meta" id="lightboxMeta"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="shareModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="shareModalTitle">앨범 공유</h3>
+                <button class="modal-close" onclick="closeShareModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="shareMessage"></div>
+
+                <!-- 공유 비활성화 상태 -->
+                <div id="shareInactive">
+                    <p style="color: #5f6368; margin-bottom: 16px;">
+                        이 앨범을 공유하면 링크를 가진 누구나 앨범의 사진을 볼 수 있습니다.
+                    </p>
+                    <button onclick="enableShare()" class="btn-primary" style="width: 100%;">
+                        공유 활성화
+                    </button>
+                </div>
+
+                <!-- 공유 활성화 상태 -->
+                <div id="shareActive" class="hidden">
+                    <div class="share-info">
+                        ✅ 이 앨범은 현재 공유 중입니다
+                    </div>
+                    <div class="share-url-box">
+                        <input type="text" id="shareUrl" class="share-url-input" readonly>
+                        <button onclick="copyShareUrl()" class="btn-copy">복사</button>
+                    </div>
+                    <div class="share-actions">
+                        <button onclick="openShareUrl()" class="btn-secondary" style="flex: 1;">
+                            새 탭에서 열기
+                        </button>
+                        <button onclick="disableShare()" class="btn-secondary" style="flex: 1; color: #d93025; border-color: #d93025;">
+                            공유 중지
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

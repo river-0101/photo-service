@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공유 앨범</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .album-title {
+            font-size: 32px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+
+        .album-description {
+            font-size: 16px;
+            color: #5f6368;
+        }
+
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 4px;
+        }
+
+        .photo-card {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+            cursor: pointer;
+            background: #f1f3f4;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .photo-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .photo-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            padding: 16px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .photo-card:hover .photo-overlay {
+            opacity: 1;
+        }
+
+        .photo-title {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px;
+            color: #5f6368;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 48px;
+            color: #5f6368;
+            font-size: 18px;
+        }
+
+        .error {
+            text-align: center;
+            padding: 48px;
+            color: #d93025;
+            font-size: 18px;
+        }
+
+        /* 라이트박스 */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .lightbox-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            position: relative;
+        }
+
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+
+        .lightbox-close:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+        }
+
+        .lightbox-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            padding: 24px;
+            color: white;
+        }
+
+        .lightbox-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="loading" class="loading">
+        앨범을 불러오는 중...
+    </div>
+
+    <div id="error" class="error hidden">
+        앨범을 찾을 수 없습니다
+    </div>
+
+    <div id="content" class="hidden">
+        <div class="header">
+            <h1 class="album-title" id="albumTitle"></h1>
+            <p class="album-description" id="albumDescription"></p>
+        </div>
+
+        <div id="photosGrid" class="photos-grid"></div>
+    </div>
+</div>
+
+<!-- 라이트박스 -->
+<div id="lightbox" class="hidden">
+    <div class="lightbox">
+        <button class="lightbox-close" onclick="closeLightbox()">×</button>
+        <div class="lightbox-content">
+            <img id="lightboxImage" class="lightbox-image" src="" alt="">
+            <div class="lightbox-info">
+                <div class="lightbox-title" id="lightboxTitle"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = '/api';
+
+    // URL에서 shareToken 추출
+    const urlParams = new URLSearchParams(window.location.search);
+    const shareToken = urlParams.get('token');
+
+    if (!shareToken) {
+        showError();
+    } else {
+        loadSharedAlbum(shareToken);
+    }
+
+    async function loadSharedAlbum(token) {
+        try {
+            // 앨범 정보
+            const albumResponse = await fetch(`${API_URL}/albums/shared/${token}`);
+
+            if (!albumResponse.ok) {
+                showError();
+                return;
+            }
+
+            const album = await albumResponse.json();
+            displayAlbum(album);
+
+            // 사진 목록 (새로운 API!)
+            const photosResponse = await fetch(`${API_URL}/albums/shared/${token}/photos`);
+
+            if (photosResponse.ok) {
+                const photos = await photosResponse.json();
+                displayPhotos(photos);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError();
+        }
+    }
+
+    function displayAlbum(album) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('content').classList.remove('hidden');
+
+        document.getElementById('albumTitle').textContent = album.title;
+        document.getElementById('albumDescription').textContent = album.description || '설명 없음';
+        document.title = `${album.title} - 공유 앨범`;
+    }
+
+    function displayPhotos(photos) {
+        const grid = document.getElementById('photosGrid');
+
+        if (photos.length === 0) {
+            grid.innerHTML = '<div class="empty-state">사진이 없습니다</div>';
+            return;
+        }
+
+        grid.innerHTML = photos.map(photo => `
+                <div class="photo-card" onclick='openLightbox("${photo.downloadUrl}", "${photo.title}")'>
+                    <img src="${photo.downloadUrl}" alt="${photo.title}">
+                    <div class="photo-overlay">
+                        <div class="photo-title">${photo.title}</div>
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    function openLightbox(url, title) {
+        document.getElementById('lightbox').classList.remove('hidden');
+        document.getElementById('lightboxImage').src = url;
+        document.getElementById('lightboxTitle').textContent = title;
+
+        document.addEventListener('keydown', handleLightboxKeydown);
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.add('hidden');
+        document.removeEventListener('keydown', handleLightboxKeydown);
+    }
+
+    function handleLightboxKeydown(e) {
+        if (e.key === 'Escape') {
+            closeLightbox();
+        }
+    }
+
+    function showError() {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('error').classList.remove('hidden');
+    }
+
+    // 라이트박스 배경 클릭시 닫기
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'lightbox') {
+            closeLightbox();
+        }
+    });
+</script>
+</body>
+</html>

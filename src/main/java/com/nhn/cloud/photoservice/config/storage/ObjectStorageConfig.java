@@ -17,6 +17,9 @@ public class ObjectStorageConfig {
     @Value("${cloud.nhn.object-storage.endpoint}")
     private String endpoint;
 
+    @Value("${cloud.nhn.object-storage.public-endpoint}")
+    private String publicEndpoint;
+
     @Value("${cloud.nhn.object-storage.region}")
     private String region;
 
@@ -42,8 +45,9 @@ public class ObjectStorageConfig {
     public S3Presigner s3Presigner() {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 
+        // Presigned URL은 공개 엔드포인트로 생성 (외부에서 접근 가능하도록)
         return S3Presigner.builder()
-                .endpointOverride(URI.create(endpoint))
+                .endpointOverride(URI.create(publicEndpoint))
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .serviceConfiguration(

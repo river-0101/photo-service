@@ -4,7 +4,7 @@ spring:
   
   # Database Configuration (NHN Cloud RDS MySQL)
   datasource:
-    url: jdbc:mysql://localhost:3307/photoservice?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT:3306}/${DB_NAME:photoservice}?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -47,8 +47,9 @@ server:
 cloud:
   nhn:
     object-storage:
-      endpoint: https://kr1-api-object-storage.nhncloudservice.com
-      region: KR1  # 판교 리전
+      endpoint: ${OBJECT_STORAGE_ENDPOINT:https://kr1-api-object-storage.nhncloudservice.com}
+      public-endpoint: ${OBJECT_STORAGE_PUBLIC_ENDPOINT:https://kr1-api-object-storage.nhncloudservice.com}
+      region: ${OBJECT_STORAGE_REGION:KR1}  # 판교 리전
       access-key: ${OBJECT_STORAGE_ACCESS_KEY}
       secret-key: ${OBJECT_STORAGE_SECRET_KEY}
       bucket-name: ${OBJECT_STORAGE_BUCKET:photo-storage-river}
