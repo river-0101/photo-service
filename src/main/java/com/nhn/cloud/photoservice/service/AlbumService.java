@@ -10,6 +10,8 @@ import com.nhn.cloud.photoservice.exception.CustomException;
 import com.nhn.cloud.photoservice.exception.ErrorCode;
 import com.nhn.cloud.photoservice.repository.AlbumRepository;
 import com.nhn.cloud.photoservice.repository.UserRepository;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,9 @@ public class AlbumService {
 
     private final AlbumRepository albumRepository;
     private final UserRepository userRepository;
+    private final Counter albumShareSuccessCounter;
+    private final Counter albumShareFailureCounter;
+    private final Timer albumListTimer;
 
     /**
      * 앨범 생성
@@ -50,13 +55,15 @@ public class AlbumService {
      * 내 앨범 목록 조회
      */
     public List<AlbumResponse> getMyAlbums(Long userId) {
-        User user = getUserById(userId);
+        return albumListTimer.record(() -> {
+            User user = getUserById(userId);
 
-        List<Album> albums = albumRepository.findByUserOrderByCreatedAtDesc(user);
+            List<Album> albums = albumRepository.findByUserOrderByCreatedAtDesc(user);
 
-        return albums.stream()
-                .map(AlbumResponse::from)
-                .collect(Collectors.toList());
+            return albums.stream()
+                    .map(AlbumResponse::from)
+                    .collect(Collectors.toList());
+        });
     }
 
     /**
@@ -109,14 +116,20 @@ public class AlbumService {
     public AlbumResponse enableSharing(Long userId, Long albumId) {
         User user = getUserById(userId);
 
-        Album album = albumRepository.findByIdAndUser(albumId, user)
-                .orElseThrow(() -> new CustomException(ErrorCode.ALBUM_NOT_FOUND));
+        try {
+            Album album = albumRepository.findByIdAndUser(albumId, user)
+                    .orElseThrow(() -> new CustomException(ErrorCode.ALBUM_NOT_FOUND));
 
-        album.enableSharing();
+            album.enableSharing();
+            albumShareSuccessCounter.increment();
 
-        log.info("Album sharing enabled: {} by user: {}", albumId, userId);
+            log.info("Album sharing enabled: {} by user: {}", albumId, userId);
 
-        return AlbumResponse.from(album);
+            return AlbumResponse.from(album);
+        } catch (Exception e) {
+            albumShareFailureCounter.increment();
+            throw e;
+        }
     }
 
     /**

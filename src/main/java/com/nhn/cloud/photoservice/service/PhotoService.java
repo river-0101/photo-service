@@ -11,6 +11,9 @@ import com.nhn.cloud.photoservice.exception.ErrorCode;
 import com.nhn.cloud.photoservice.repository.AlbumRepository;
 import com.nhn.cloud.photoservice.repository.PhotoRepository;
 import com.nhn.cloud.photoservice.repository.UserRepository;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,43 +33,59 @@ public class PhotoService {
     private final UserRepository userRepository;
     private final AlbumRepository albumRepository;
     private final ObjectStorageService objectStorageService;
+    private final Counter photoUploadSuccessCounter;
+    private final Counter photoUploadFailureCounter;
+    private final Timer photoUploadTimer;
+    private final MeterRegistry meterRegistry;
 
     /**
      * 사진 업로드
      */
     @Transactional
     public PhotoResponse uploadPhoto(Long userId, MultipartFile file, PhotoUploadRequest request) {
-        User user = getUserById(userId);
+        return photoUploadTimer.record(() -> {
+            User user = getUserById(userId);
 
-        // 앨범 검증 (앨범이 지정된 경우)
-        Album album = null;
-        if (request.getAlbumId() != null) {
-            album = albumRepository.findByIdAndUser(request.getAlbumId(), user)
-                    .orElseThrow(() -> new CustomException(ErrorCode.ALBUM_NOT_FOUND));
-        }
+            // 앨범 검증 (앨범이 지정된 경우)
+            Album album = null;
+            if (request.getAlbumId() != null) {
+                album = albumRepository.findByIdAndUser(request.getAlbumId(), user)
+                        .orElseThrow(() -> new CustomException(ErrorCode.ALBUM_NOT_FOUND));
+            }
 
-        // Object Storage에 파일 업로드
-        String storageKey = objectStorageService.uploadFile(file, userId);
+            try {
+                // Object Storage에 파일 업로드
+                String storageKey = objectStorageService.uploadFile(file, userId);
 
-        // Photo 엔티티 생성 및 저장
-        Photo photo = Photo.builder()
-                .user(user)
-                .album(album)
-                .originalFilename(file.getOriginalFilename())
-                .storageKey(storageKey)
-                .contentType(file.getContentType())
-                .fileSize(file.getSize())
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .build();
+                // Photo 엔티티 생성 및 저장
+                Photo photo = Photo.builder()
+                        .user(user)
+                        .album(album)
+                        .originalFilename(file.getOriginalFilename())
+                        .storageKey(storageKey)
+                        .contentType(file.getContentType())
+                        .fileSize(file.getSize())
+                        .title(request.getTitle())
+                        .description(request.getDescription())
+                        .build();
 
-        Photo savedPhoto = photoRepository.save(photo);
-        log.info("Photo uploaded: {} by user: {}", savedPhoto.getId(), userId);
+                Photo savedPhoto = photoRepository.save(photo);
+                photoUploadSuccessCounter.increment();
 
-        // Pre-signed URL 생성
-        String downloadUrl = objectStorageService.generatePresignedUrl(storageKey);
+                // 파일 크기 메트릭 기록
+                meterRegistry.summary("photo_service.photo.upload.bytes").record(file.getSize());
 
-        return PhotoResponse.from(savedPhoto, downloadUrl);
+                log.info("Photo uploaded: {} by user: {} (size: {} bytes)", savedPhoto.getId(), userId, file.getSize());
+
+                // Pre-signed URL 생성
+                String downloadUrl = objectStorageService.generatePresignedUrl(storageKey);
+
+                return PhotoResponse.from(savedPhoto, downloadUrl);
+            } catch (Exception e) {
+                photoUploadFailureCounter.increment();
+                throw e;
+            }
+        });
     }
 
     /**

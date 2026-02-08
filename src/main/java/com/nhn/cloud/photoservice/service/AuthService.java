@@ -9,6 +9,7 @@ import com.nhn.cloud.photoservice.dto.response.AuthResponse;
 import com.nhn.cloud.photoservice.exception.CustomException;
 import com.nhn.cloud.photoservice.exception.ErrorCode;
 import com.nhn.cloud.photoservice.repository.UserRepository;
+import io.micrometer.core.instrument.Counter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +25,9 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final Counter loginSuccessCounter;
+    private final Counter loginFailureCounter;
+    private final Counter signupCounter;
 
     /**
      * 회원가입
@@ -47,6 +51,7 @@ public class AuthService {
                 .build();
 
         User savedUser = userRepository.save(user);
+        signupCounter.increment();
         log.info("New user registered: {}", savedUser.getEmail());
 
         // JWT 토큰 생성
@@ -74,18 +79,24 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
         // 사용자 조회
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> {
+                    loginFailureCounter.increment();
+                    return new CustomException(ErrorCode.USER_NOT_FOUND);
+                });
 
         // 비밀번호 확인
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            loginFailureCounter.increment();
             throw new CustomException(ErrorCode.UNAUTHORIZED, "Invalid email or password");
         }
 
         // 계정 활성화 확인
         if (!user.getIsActive()) {
+            loginFailureCounter.increment();
             throw new CustomException(ErrorCode.FORBIDDEN, "Account is deactivated");
         }
 
+        loginSuccessCounter.increment();
         log.info("User logged in: {}", user.getEmail());
 
         // JWT 토큰 생성

@@ -2,6 +2,7 @@ package com.nhn.cloud.photoservice.service;
 
 import com.nhn.cloud.photoservice.exception.CustomException;
 import com.nhn.cloud.photoservice.exception.ErrorCode;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,8 @@ public class ObjectStorageService {
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
+    private final Timer objectStorageUploadTimer;
+    private final Timer presignedUrlTimer;
 
     @Value("${cloud.nhn.object-storage.bucket-name}")
     private String bucketName;
@@ -42,48 +45,52 @@ public class ObjectStorageService {
         String extension = getFileExtension(originalFilename);
         String storageKey = generateStorageKey(userId, extension);
 
-        try {
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(storageKey)
-                    .contentType(file.getContentType())
-                    .contentLength(file.getSize())
-                    .build();
+        return objectStorageUploadTimer.record(() -> {
+            try {
+                PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(storageKey)
+                        .contentType(file.getContentType())
+                        .contentLength(file.getSize())
+                        .build();
 
-            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+                s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-            log.info("File uploaded successfully: {}", storageKey);
-            return storageKey;
+                log.info("File uploaded successfully: {} (size: {} bytes)", storageKey, file.getSize());
+                return storageKey;
 
-        } catch (IOException e) {
-            log.error("Failed to upload file", e);
-            throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED);
-        }
+            } catch (IOException e) {
+                log.error("Failed to upload file", e);
+                throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED);
+            }
+        });
     }
 
     /**
      * Pre-signed URL 생성 (다운로드용)
      */
     public String generatePresignedUrl(String storageKey) {
-        try {
-            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(storageKey)
-                    .build();
+        return presignedUrlTimer.record(() -> {
+            try {
+                GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(storageKey)
+                        .build();
 
-            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                    .signatureDuration(Duration.ofSeconds(presignedUrlExpiration))
-                    .getObjectRequest(getObjectRequest)
-                    .build();
+                GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                        .signatureDuration(Duration.ofSeconds(presignedUrlExpiration))
+                        .getObjectRequest(getObjectRequest)
+                        .build();
 
-            PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
+                PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
 
-            return presignedRequest.url().toString();
+                return presignedRequest.url().toString();
 
-        } catch (Exception e) {
-            log.error("Failed to generate presigned URL for key: {}", storageKey, e);
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "Failed to generate download URL");
-        }
+            } catch (Exception e) {
+                log.error("Failed to generate presigned URL for key: {}", storageKey, e);
+                throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "Failed to generate download URL");
+            }
+        });
     }
 
     /**

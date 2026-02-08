@@ -71,6 +71,13 @@ management:
   endpoint:
     health:
       show-details: always
+      probes:
+        enabled: true
+  health:
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
   metrics:
     export:
       prometheus:
@@ -78,6 +85,18 @@ management:
     tags:
       application: ${spring.application.name}
       region: KR1
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        photo_service.photo.upload.duration: true
+        photo_service.storage.upload.duration: true
+        photo_service.storage.presigned_url.duration: true
+        photo_service.album.list.duration: true
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+        photo_service.photo.upload.duration: 0.5,0.95,0.99
+        photo_service.storage.upload.duration: 0.5,0.95,0.99
+        photo_service.album.list.duration: 0.5,0.95,0.99
 
 # Logging Configuration
 logging:
