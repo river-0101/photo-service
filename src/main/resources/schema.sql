@@ -52,6 +52,22 @@ CREATE TABLE IF NOT EXISTS photos (
     INDEX idx_album_id (album_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Audit Log 테이블
+CREATE TABLE IF NOT EXISTS audit_log (
+                                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                         user_id BIGINT,
+                                         user_email VARCHAR(100),
+    action VARCHAR(50) NOT NULL,
+    target_type VARCHAR(50),
+    target_id BIGINT,
+    detail VARCHAR(500),
+    ip_address VARCHAR(45),
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    INDEX idx_audit_user_id (user_id),
+    INDEX idx_audit_action (action),
+    INDEX idx_audit_created_at (created_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- 샘플 데이터 (테스트용, 선택사항)
 -- 비밀번호: "password123" (BCrypt 해시)
 INSERT INTO users (email, name, password, role, is_active) VALUES

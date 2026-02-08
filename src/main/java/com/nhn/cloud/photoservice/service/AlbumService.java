@@ -1,6 +1,7 @@
 package com.nhn.cloud.photoservice.service;
 
 import com.nhn.cloud.photoservice.domain.album.Album;
+import com.nhn.cloud.photoservice.domain.audit.AuditAction;
 import com.nhn.cloud.photoservice.domain.photo.Photo;
 import com.nhn.cloud.photoservice.domain.user.User;
 import com.nhn.cloud.photoservice.dto.request.AlbumCreateRequest;
@@ -10,6 +11,7 @@ import com.nhn.cloud.photoservice.exception.CustomException;
 import com.nhn.cloud.photoservice.exception.ErrorCode;
 import com.nhn.cloud.photoservice.repository.AlbumRepository;
 import com.nhn.cloud.photoservice.repository.UserRepository;
+import com.nhn.cloud.photoservice.util.ClientIpUtil;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ public class AlbumService {
 
     private final AlbumRepository albumRepository;
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
     private final Counter albumShareSuccessCounter;
     private final Counter albumShareFailureCounter;
     private final Timer albumListTimer;
@@ -46,6 +49,10 @@ public class AlbumService {
                 .build();
 
         Album savedAlbum = albumRepository.save(album);
+
+        auditLogService.log(userId, user.getEmail(),
+                AuditAction.ALBUM_CREATE, "album", savedAlbum.getId(),
+                "title=" + savedAlbum.getTitle(), ClientIpUtil.getClientIp());
         log.info("Album created: {} by user: {}", savedAlbum.getId(), userId);
 
         return AlbumResponse.from(savedAlbum);
@@ -123,6 +130,9 @@ public class AlbumService {
             album.enableSharing();
             albumShareSuccessCounter.increment();
 
+            auditLogService.log(userId, user.getEmail(),
+                    AuditAction.ALBUM_SHARE_ENABLE, "album", albumId,
+                    "shareToken=" + album.getShareToken(), ClientIpUtil.getClientIp());
             log.info("Album sharing enabled: {} by user: {}", albumId, userId);
 
             return AlbumResponse.from(album);
@@ -144,6 +154,9 @@ public class AlbumService {
 
         album.disableSharing();
 
+        auditLogService.log(userId, user.getEmail(),
+                AuditAction.ALBUM_SHARE_DISABLE, "album", albumId,
+                "Sharing disabled", ClientIpUtil.getClientIp());
         log.info("Album sharing disabled: {} by user: {}", albumId, userId);
 
         return AlbumResponse.from(album);
@@ -158,6 +171,10 @@ public class AlbumService {
 
         Album album = albumRepository.findByIdAndUser(albumId, user)
                 .orElseThrow(() -> new CustomException(ErrorCode.ALBUM_NOT_FOUND));
+
+        auditLogService.log(userId, user.getEmail(),
+                AuditAction.ALBUM_DELETE, "album", albumId,
+                "title=" + album.getTitle(), ClientIpUtil.getClientIp());
 
         albumRepository.delete(album);
 

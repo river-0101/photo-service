@@ -1,6 +1,7 @@
 package com.nhn.cloud.photoservice.service;
 
 import com.nhn.cloud.photoservice.domain.album.Album;
+import com.nhn.cloud.photoservice.domain.audit.AuditAction;
 import com.nhn.cloud.photoservice.domain.photo.Photo;
 import com.nhn.cloud.photoservice.domain.user.User;
 import com.nhn.cloud.photoservice.dto.request.PhotoUpdateRequest;
@@ -11,6 +12,7 @@ import com.nhn.cloud.photoservice.exception.ErrorCode;
 import com.nhn.cloud.photoservice.repository.AlbumRepository;
 import com.nhn.cloud.photoservice.repository.PhotoRepository;
 import com.nhn.cloud.photoservice.repository.UserRepository;
+import com.nhn.cloud.photoservice.util.ClientIpUtil;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -33,6 +35,7 @@ public class PhotoService {
     private final UserRepository userRepository;
     private final AlbumRepository albumRepository;
     private final ObjectStorageService objectStorageService;
+    private final AuditLogService auditLogService;
     private final Counter photoUploadSuccessCounter;
     private final Counter photoUploadFailureCounter;
     private final Timer photoUploadTimer;
@@ -74,6 +77,14 @@ public class PhotoService {
 
                 // 파일 크기 메트릭 기록
                 meterRegistry.summary("photo_service.photo.upload.bytes").record(file.getSize());
+
+                // 감사 로그
+                String detail = String.format("file=%s, size=%d bytes, album=%s",
+                        file.getOriginalFilename(), file.getSize(),
+                        album != null ? album.getTitle() : "none");
+                auditLogService.log(userId, user.getEmail(),
+                        AuditAction.PHOTO_UPLOAD, "photo", savedPhoto.getId(),
+                        detail, ClientIpUtil.getClientIp());
 
                 log.info("Photo uploaded: {} by user: {} (size: {} bytes)", savedPhoto.getId(), userId, file.getSize());
 
@@ -189,6 +200,12 @@ public class PhotoService {
 
         Photo photo = photoRepository.findByIdAndUser(photoId, user)
                 .orElseThrow(() -> new CustomException(ErrorCode.PHOTO_NOT_FOUND));
+
+        // 감사 로그 (삭제 전 정보 기록)
+        String detail = String.format("file=%s, size=%d bytes", photo.getOriginalFilename(), photo.getFileSize());
+        auditLogService.log(userId, user.getEmail(),
+                AuditAction.PHOTO_DELETE, "photo", photoId,
+                detail, ClientIpUtil.getClientIp());
 
         // Object Storage에서 파일 삭제
         objectStorageService.deleteFile(photo.getStorageKey());
