@@ -43,3 +43,6 @@ photo-service.env
 ### Docker artifacts ###
 *.tar
 *.zip
+
+### Monitoring (auto-generated) ###
+monitoring/targets/
