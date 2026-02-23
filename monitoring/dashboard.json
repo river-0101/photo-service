@@ -1,0 +1,450 @@
+{
+  "id": 1,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "panels": [],
+      "title": "서비스 현황",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "id": 13,
+      "targets": [
+        {
+          "expr": "count(up{job=\"photo-service-was\"} == 1)",
+          "legendFormat": "Active Instances"
+        }
+      ],
+      "title": "WAS Instance Count",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "id": 16,
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"photo-service-via-lb\"}[1m]))",
+          "legendFormat": "Total RPS"
+        }
+      ],
+      "title": "Total RPS",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "id": 5,
+      "targets": [
+        {
+          "expr": "sum(photo_service_active_users{job=\"photo-service-via-lb\"})",
+          "legendFormat": "Active Users"
+        }
+      ],
+      "title": "Active Users (Concurrent)",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "id": 6,
+      "targets": [
+        {
+          "expr": "sum(photo_service_auth_signup_total{job=\"photo-service-via-lb\"})",
+          "legendFormat": "Total Signups"
+        }
+      ],
+      "title": "Signup Total",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 101,
+      "panels": [],
+      "title": "요청 & 응답",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "id": 1,
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"photo-service-via-lb\"}[1m])) by (method, uri, status)",
+          "legendFormat": "{{method}} {{uri}} {{status}}"
+        }
+      ],
+      "title": "HTTP Request Rate (per second)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "id": 2,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"photo-service-via-lb\"}[5m])) by (le, method, uri))",
+          "legendFormat": "{{method}} {{uri}}"
+        }
+      ],
+      "title": "HTTP Response Time (P95)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 102,
+      "panels": [],
+      "title": "비즈니스 메트릭",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 15
+      },
+      "id": 3,
+      "targets": [
+        {
+          "expr": "sum(rate(photo_service_auth_login_total{job=\"photo-service-via-lb\", result=\"success\"}[5m]))",
+          "legendFormat": "Success"
+        },
+        {
+          "expr": "sum(rate(photo_service_auth_login_total{job=\"photo-service-via-lb\", result=\"failure\"}[5m]))",
+          "legendFormat": "Failure"
+        }
+      ],
+      "title": "Login Success / Failure",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 15
+      },
+      "id": 4,
+      "targets": [
+        {
+          "expr": "sum(rate(photo_service_photo_upload_total{job=\"photo-service-via-lb\", result=\"success\"}[5m]))",
+          "legendFormat": "Success"
+        },
+        {
+          "expr": "sum(rate(photo_service_photo_upload_total{job=\"photo-service-via-lb\", result=\"failure\"}[5m]))",
+          "legendFormat": "Failure"
+        }
+      ],
+      "title": "Photo Upload Success / Failure",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 15
+      },
+      "id": 9,
+      "targets": [
+        {
+          "expr": "sum(rate(photo_service_album_share_total{job=\"photo-service-via-lb\", result=\"success\"}[5m]))",
+          "legendFormat": "Success"
+        },
+        {
+          "expr": "sum(rate(photo_service_album_share_total{job=\"photo-service-via-lb\", result=\"failure\"}[5m]))",
+          "legendFormat": "Failure"
+        }
+      ],
+      "title": "Album Share Success / Failure",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 103,
+      "panels": [],
+      "title": "인프라",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "max": 1,
+          "min": 0,
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 24
+      },
+      "id": 12,
+      "targets": [
+        {
+          "expr": "system_cpu_usage{job=\"photo-service-was\"}",
+          "legendFormat": "{{instance_ip}} - System CPU"
+        },
+        {
+          "expr": "process_cpu_usage{job=\"photo-service-was\"}",
+          "legendFormat": "{{instance_ip}} - JVM CPU"
+        }
+      ],
+      "title": "WAS CPU Usage (%)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 24
+      },
+      "id": 14,
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{job=\"photo-service-was\", area=\"heap\"}",
+          "legendFormat": "{{instance_ip}} Heap Used"
+        }
+      ],
+      "title": "JVM Heap Memory (per Instance)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 24
+      },
+      "id": 10,
+      "targets": [
+        {
+          "expr": "hikaricp_connections_active{job=\"photo-service-via-lb\"}",
+          "legendFormat": "Active"
+        },
+        {
+          "expr": "hikaricp_connections_idle{job=\"photo-service-via-lb\"}",
+          "legendFormat": "Idle"
+        },
+        {
+          "expr": "hikaricp_connections_max{job=\"photo-service-via-lb\"}",
+          "legendFormat": "Max"
+        }
+      ],
+      "title": "DB Connection Pool",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 104,
+      "panels": [],
+      "title": "성능 상세",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 33
+      },
+      "id": 15,
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"photo-service-was\"}[1m])) by (instance_ip)",
+          "legendFormat": "{{instance_ip}}"
+        }
+      ],
+      "title": "RPS per Instance",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 33
+      },
+      "id": 7,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(photo_service_photo_upload_duration_seconds_bucket{job=\"photo-service-via-lb\"}[5m])) by (le))",
+          "legendFormat": "P95 Upload Time"
+        }
+      ],
+      "title": "Photo Upload Duration (P95)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 33
+      },
+      "id": 11,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(photo_service_storage_upload_duration_seconds_bucket{job=\"photo-service-via-lb\"}[5m])) by (le))",
+          "legendFormat": "Storage Upload P95"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(photo_service_storage_presigned_url_duration_seconds_bucket{job=\"photo-service-via-lb\"}[5m])) by (le))",
+          "legendFormat": "Presigned URL P95"
+        }
+      ],
+      "title": "Object Storage Upload Duration (P95)",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": [
+    "photo-service"
+  ],
+  "timezone": "Asia/Seoul",
+  "title": "Photo Service Monitoring",
+  "uid": "37fb9f76-1e4d-4f26-b0e4-01e698987948",
+  "version": 5
+}
