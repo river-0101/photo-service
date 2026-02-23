@@ -22,8 +22,8 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
     depends_on:
       - prometheus
 
@@ -34,7 +34,7 @@ services:
     volumes:
       - ./dooray-proxy/webhook_proxy.py:/app/webhook_proxy.py:ro
     environment:
-      - DOORAY_WEBHOOK_URL=https://nhnent.dooray.com/services/3234962574780345705/4266837808044889584/9gifSAtzT4mEo8B0Xjz9Zw
+      - DOORAY_WEBHOOK_URL=${DOORAY_WEBHOOK_URL}
       - LISTEN_PORT=5001
       - PYTHONUNBUFFERED=1
     command: python /app/webhook_proxy.py
