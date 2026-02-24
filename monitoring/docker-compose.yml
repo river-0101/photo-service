@@ -39,6 +39,27 @@ services:
       - PYTHONUNBUFFERED=1
     command: python /app/webhook_proxy.py
 
+  obs-checker:
+    image: python:3.12-slim
+    container_name: obs-checker
+    profiles:
+      - checker
+    volumes:
+      - ./obs_replication_check.py:/app/check.py:ro
+    environment:
+      - OBS_PRIMARY_ENDPOINT=${OBS_PRIMARY_ENDPOINT}
+      - OBS_PRIMARY_REGION=${OBS_PRIMARY_REGION:-KR1}
+      - OBS_PRIMARY_BUCKET=${OBS_PRIMARY_BUCKET}
+      - OBS_DR_ENDPOINT=${OBS_DR_ENDPOINT}
+      - OBS_DR_REGION=${OBS_DR_REGION:-KR2}
+      - OBS_DR_BUCKET=${OBS_DR_BUCKET}
+      - OBS_ACCESS_KEY=${OBS_ACCESS_KEY}
+      - OBS_SECRET_KEY=${OBS_SECRET_KEY}
+      - OBS_DIFF_THRESHOLD=${OBS_DIFF_THRESHOLD:-5}
+      - DOORAY_WEBHOOK_URL=${DOORAY_WEBHOOK_URL}
+    command: >
+      bash -c "pip install -q boto3 && python /app/check.py"
+
 volumes:
   prometheus_data:
   grafana_data:

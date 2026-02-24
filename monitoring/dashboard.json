@@ -1,5 +1,4 @@
 {
-  "id": 1,
   "panels": [
     {
       "collapsed": false,
@@ -586,6 +585,218 @@
       ],
       "title": "Object Storage Upload Duration (P95)",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 45
+      },
+      "id": 105,
+      "panels": [],
+      "title": "JVM 상세",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 46
+      },
+      "id": 202,
+      "targets": [
+        {
+          "expr": "rate(jvm_gc_pause_seconds_sum{job=\"photo-service-was\"}[5m])",
+          "legendFormat": "{{instance_ip}} GC Time/sec"
+        },
+        {
+          "expr": "jvm_gc_pause_seconds_max{job=\"photo-service-was\"}",
+          "legendFormat": "{{instance_ip}} Max Pause"
+        }
+      ],
+      "title": "GC Pause Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.05
+              },
+              {
+                "color": "red",
+                "value": 0.1
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 46
+      },
+      "id": 203,
+      "targets": [
+        {
+          "expr": "jvm_gc_overhead{job=\"photo-service-was\"}",
+          "legendFormat": "{{instance_ip}}"
+        }
+      ],
+      "title": "GC Overhead (%)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 46
+      },
+      "id": 204,
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{job=\"photo-service-was\", area=\"nonheap\"}",
+          "legendFormat": "{{instance_ip}} Non-Heap Used"
+        },
+        {
+          "expr": "jvm_memory_committed_bytes{job=\"photo-service-was\", area=\"nonheap\"}",
+          "legendFormat": "{{instance_ip}} Non-Heap Committed"
+        }
+      ],
+      "title": "JVM Non-Heap Memory (Metaspace)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 54
+      },
+      "id": 205,
+      "targets": [
+        {
+          "expr": "sum(jvm_threads_states_threads{job=\"photo-service-was\"}) by (state)",
+          "legendFormat": "{{state}}"
+        }
+      ],
+      "title": "JVM Thread States",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "cpm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 54
+      },
+      "id": 206,
+      "targets": [
+        {
+          "expr": "sum(rate(logback_events_total{job=\"photo-service-was\", level=\"error\"}[5m])) * 60",
+          "legendFormat": "Error"
+        },
+        {
+          "expr": "sum(rate(logback_events_total{job=\"photo-service-was\", level=\"warn\"}[5m])) * 60",
+          "legendFormat": "Warn"
+        }
+      ],
+      "title": "Log Error/Warn Rate (/min)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 54
+      },
+      "id": 207,
+      "targets": [
+        {
+          "expr": "hikaricp_connections_acquire_seconds_max{job=\"photo-service-via-lb\"}",
+          "legendFormat": "Acquire Time (Max)"
+        },
+        {
+          "expr": "hikaricp_connections_creation_seconds_max{job=\"photo-service-via-lb\"}",
+          "legendFormat": "Creation Time (Max)"
+        },
+        {
+          "expr": "hikaricp_connections_pending{job=\"photo-service-via-lb\"}",
+          "legendFormat": "Pending Threads"
+        }
+      ],
+      "title": "HikariCP Connection Timing & Pending",
+      "type": "timeseries"
     }
   ],
   "schemaVersion": 39,
@@ -594,6 +805,5 @@
   ],
   "timezone": "Asia/Seoul",
   "title": "Photo Service Monitoring",
-  "uid": "37fb9f76-1e4d-4f26-b0e4-01e698987948",
-  "version": 7
+  "uid": "37fb9f76-1e4d-4f26-b0e4-01e698987948"
 }
