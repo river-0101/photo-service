@@ -40,6 +40,13 @@
         "type": "prometheus",
         "uid": "ffckufsl3hs74a"
       },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 4,
         "w": 6,
@@ -116,6 +123,12 @@
         "type": "prometheus",
         "uid": "ffckufsl3hs74a"
       },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -159,12 +172,54 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0.05
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 200,
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"photo-service-via-lb\", status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{job=\"photo-service-via-lb\"}[5m]))",
+          "legendFormat": "5xx Error Rate"
+        }
+      ],
+      "title": "HTTP 5xx Error Rate",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 18
       },
       "id": 102,
       "panels": [],
@@ -176,11 +231,17 @@
         "type": "prometheus",
         "uid": "ffckufsl3hs74a"
       },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 15
+        "y": 19
       },
       "id": 3,
       "targets": [
@@ -201,11 +262,17 @@
         "type": "prometheus",
         "uid": "ffckufsl3hs74a"
       },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 15
+        "y": 19
       },
       "id": 4,
       "targets": [
@@ -226,11 +293,17 @@
         "type": "prometheus",
         "uid": "ffckufsl3hs74a"
       },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 15
+        "y": 19
       },
       "id": 9,
       "targets": [
@@ -252,7 +325,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 27
       },
       "id": 103,
       "panels": [],
@@ -274,9 +347,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
-        "y": 24
+        "y": 28
       },
       "id": 12,
       "targets": [
@@ -301,19 +374,46 @@
         "defaults": {
           "unit": "bytes"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*Max.*"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    10,
+                    10
+                  ],
+                  "fill": "dash"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 24
+        "w": 6,
+        "x": 6,
+        "y": 28
       },
       "id": 14,
       "targets": [
         {
           "expr": "jvm_memory_used_bytes{job=\"photo-service-was\", area=\"heap\"}",
           "legendFormat": "{{instance_ip}} Heap Used"
+        },
+        {
+          "expr": "jvm_memory_max_bytes{job=\"photo-service-was\", area=\"heap\"}",
+          "legendFormat": "{{instance_ip}} Heap Max"
         }
       ],
       "title": "JVM Heap Memory (per Instance)",
@@ -326,9 +426,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 24
+        "w": 6,
+        "x": 12,
+        "y": 28
       },
       "id": 10,
       "targets": [
@@ -349,12 +449,55 @@
       "type": "timeseries"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "ffckufsl3hs74a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 200
+              },
+              {
+                "color": "red",
+                "value": 250
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 28
+      },
+      "id": 201,
+      "targets": [
+        {
+          "expr": "jvm_threads_live_threads{job=\"photo-service-was\"}",
+          "legendFormat": "{{instance_ip}}"
+        }
+      ],
+      "title": "JVM Thread Count",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 36
       },
       "id": 104,
       "panels": [],
@@ -366,11 +509,17 @@
         "type": "prometheus",
         "uid": "ffckufsl3hs74a"
       },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 33
+        "y": 37
       },
       "id": 15,
       "targets": [
@@ -396,7 +545,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 33
+        "y": 37
       },
       "id": 7,
       "targets": [
@@ -422,7 +571,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 33
+        "y": 37
       },
       "id": 11,
       "targets": [
@@ -446,5 +595,5 @@
   "timezone": "Asia/Seoul",
   "title": "Photo Service Monitoring",
   "uid": "37fb9f76-1e4d-4f26-b0e4-01e698987948",
-  "version": 5
+  "version": 6
 }
