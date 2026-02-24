@@ -233,7 +233,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "ops"
+          "unit": "cpm"
         },
         "overrides": []
       },
@@ -246,15 +246,15 @@
       "id": 3,
       "targets": [
         {
-          "expr": "sum(rate(photo_service_auth_login_total{job=\"photo-service-via-lb\", result=\"success\"}[5m]))",
+          "expr": "(sum(rate(photo_service_auth_login_total{job=\"photo-service-via-lb\", result=\"success\"}[5m]))) * 60",
           "legendFormat": "Success"
         },
         {
-          "expr": "sum(rate(photo_service_auth_login_total{job=\"photo-service-via-lb\", result=\"failure\"}[5m]))",
+          "expr": "(sum(rate(photo_service_auth_login_total{job=\"photo-service-via-lb\", result=\"failure\"}[5m]))) * 60",
           "legendFormat": "Failure"
         }
       ],
-      "title": "Login Success / Failure",
+      "title": "Login Success / Failure (/min)",
       "type": "timeseries"
     },
     {
@@ -264,7 +264,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "ops"
+          "unit": "cpm"
         },
         "overrides": []
       },
@@ -277,15 +277,15 @@
       "id": 4,
       "targets": [
         {
-          "expr": "sum(rate(photo_service_photo_upload_total{job=\"photo-service-via-lb\", result=\"success\"}[5m]))",
+          "expr": "(sum(rate(photo_service_photo_upload_total{job=\"photo-service-via-lb\", result=\"success\"}[5m]))) * 60",
           "legendFormat": "Success"
         },
         {
-          "expr": "sum(rate(photo_service_photo_upload_total{job=\"photo-service-via-lb\", result=\"failure\"}[5m]))",
+          "expr": "(sum(rate(photo_service_photo_upload_total{job=\"photo-service-via-lb\", result=\"failure\"}[5m]))) * 60",
           "legendFormat": "Failure"
         }
       ],
-      "title": "Photo Upload Success / Failure",
+      "title": "Photo Upload Success / Failure (/min)",
       "type": "timeseries"
     },
     {
@@ -295,7 +295,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "ops"
+          "unit": "cpm"
         },
         "overrides": []
       },
@@ -308,15 +308,15 @@
       "id": 9,
       "targets": [
         {
-          "expr": "sum(rate(photo_service_album_share_total{job=\"photo-service-via-lb\", result=\"success\"}[5m]))",
+          "expr": "(sum(rate(photo_service_album_share_total{job=\"photo-service-via-lb\", result=\"success\"}[5m]))) * 60",
           "legendFormat": "Success"
         },
         {
-          "expr": "sum(rate(photo_service_album_share_total{job=\"photo-service-via-lb\", result=\"failure\"}[5m]))",
+          "expr": "(sum(rate(photo_service_album_share_total{job=\"photo-service-via-lb\", result=\"failure\"}[5m]))) * 60",
           "legendFormat": "Failure"
         }
       ],
-      "title": "Album Share Success / Failure",
+      "title": "Album Share Success / Failure (/min)",
       "type": "timeseries"
     },
     {
@@ -595,5 +595,5 @@
   "timezone": "Asia/Seoul",
   "title": "Photo Service Monitoring",
   "uid": "37fb9f76-1e4d-4f26-b0e4-01e698987948",
-  "version": 6
+  "version": 7
 }
