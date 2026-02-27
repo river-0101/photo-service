@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss} [%X{requestId:-}] [user:%X{userId:--}] [%X{method:--} %X{uri:--}] [%X{clientIp:-}] [%thread] %-5level %logger{36} - %msg%n"/>
+    <property name="FILE_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss} [%X{requestId:-}] [user:%X{userId:--}] [%X{method:--} %X{uri:--}] [%X{clientIp:-}] [%thread] %-5level %logger{36} - %msg%n"/>
+
+    <!-- Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- File Appender -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/log/photo-service/application.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>/var/log/photo-service/application.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- NHN Cloud Log & Crash Search (prod 프로필에서만 활성화) -->
+    <springProfile name="prod">
+        <appender name="LOG_CRASH" class="com.toast.java.logncrash.logback.LogNCrashHttpAppender">
+            <appKey>${LOG_CRASH_APPKEY:-}</appKey>
+            <collectorUrl>${LOG_CRASH_COLLECTOR_URL:-https://api-logncrash.nhncloudservice.com}</collectorUrl>
+            <logSource>real</logSource>
+            <version>1.0.0</version>
+            <logType>log</logType>
+            <debug>false</debug>
+            <category>photo-service</category>
+            <errorCodeType>default</errorCodeType>
+        </appender>
+
+        <appender name="ASYNC_LOG_CRASH" class="ch.qos.logback.classic.AsyncAppender">
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>WARN</level>
+            </filter>
+            <includeCallerData>false</includeCallerData>
+            <queueSize>2048</queueSize>
+            <neverBlock>true</neverBlock>
+            <maxFlushTime>60000</maxFlushTime>
+            <appender-ref ref="LOG_CRASH"/>
+        </appender>
+    </springProfile>
+
+    <!-- Application Loggers -->
+    <logger name="com.nhn.cloud.photoservice" level="DEBUG"/>
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
+
+    <!-- Root Logger (로컬 개발 환경) -->
+    <springProfile name="!prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- Root Logger (운영 환경 - Log & Crash 포함) -->
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="ASYNC_LOG_CRASH"/>
+        </root>
+    </springProfile>
+</configuration>

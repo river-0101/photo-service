@@ -1,6 +1,7 @@
 package com.nhn.cloud.photoservice.config.security;
 
 import com.nhn.cloud.photoservice.config.ActiveUserFilter;
+import com.nhn.cloud.photoservice.config.MdcFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final MdcFilter mdcFilter;
     private final ActiveUserFilter activeUserFilter;
 
     @Bean
@@ -49,7 +51,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(activeUserFilter, JwtAuthenticationFilter.class);
+                .addFilterAfter(mdcFilter, JwtAuthenticationFilter.class)
+                .addFilterAfter(activeUserFilter, MdcFilter.class);
 
         return http.build();
     }

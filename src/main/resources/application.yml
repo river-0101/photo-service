@@ -98,17 +98,4 @@ management:
         photo_service.storage.upload.duration: 0.5,0.95,0.99
         photo_service.album.list.duration: 0.5,0.95,0.99
 
-# Logging Configuration
-logging:
-  level:
-    root: INFO
-    com.nhn.cloud.photoservice: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  file:
-    name: /var/log/photo-service/application.log
-    max-size: 10MB
-    max-history: 30
+# Logging Configuration (상세 설정은 logback-spring.xml 참조)
