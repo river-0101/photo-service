@@ -100,6 +100,22 @@
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
+        <!-- NHN Cloud Log & Crash Search SDK (libs/에서 mvn install:install-file로 로컬 저장소에 설치 필요) -->
+        <dependency>
+            <groupId>com.toast.java</groupId>
+            <artifactId>logncrash-java-sdk3</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

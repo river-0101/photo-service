@@ -1,0 +1,21 @@
+[
+  {
+    "uid": "efd2t04af51xca",
+    "name": "dooray-alerts",
+    "type": "webhook",
+    "settings": {
+      "httpMethod": "POST",
+      "url": "http://dooray-proxy:5001"
+    },
+    "disableResolveMessage": false
+  },
+  {
+    "uid": "",
+    "name": "email receiver",
+    "type": "email",
+    "settings": {
+      "addresses": "<example@email.com>"
+    },
+    "disableResolveMessage": false
+  }
+]

@@ -1,809 +1,2303 @@
 {
-  "panels": [
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 100,
-      "panels": [],
-      "title": "서비스 현황",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 1
-      },
-      "id": 13,
-      "targets": [
-        {
-          "expr": "count(up{job=\"photo-service-was\"} == 1)",
-          "legendFormat": "Active Instances"
-        }
-      ],
-      "title": "WAS Instance Count",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "decimals": 1,
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 6,
-        "y": 1
-      },
-      "id": 16,
-      "targets": [
-        {
-          "expr": "sum(rate(http_server_requests_seconds_count{job=\"photo-service-via-lb\"}[1m]))",
-          "legendFormat": "Total RPS"
-        }
-      ],
-      "title": "Total RPS",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 12,
-        "y": 1
-      },
-      "id": 5,
-      "targets": [
-        {
-          "expr": "sum(photo_service_active_users{job=\"photo-service-via-lb\"})",
-          "legendFormat": "Active Users"
-        }
-      ],
-      "title": "Active Users (Concurrent)",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 18,
-        "y": 1
-      },
-      "id": 6,
-      "targets": [
-        {
-          "expr": "sum(photo_service_auth_signup_total{job=\"photo-service-via-lb\"})",
-          "legendFormat": "Total Signups"
-        }
-      ],
-      "title": "Signup Total",
-      "type": "stat"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 5
-      },
-      "id": 101,
-      "panels": [],
-      "title": "요청 & 응답",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 6
-      },
-      "id": 1,
-      "targets": [
-        {
-          "expr": "sum(rate(http_server_requests_seconds_count{job=\"photo-service-via-lb\"}[1m])) by (method, uri, status)",
-          "legendFormat": "{{method}} {{uri}} {{status}}"
-        }
-      ],
-      "title": "HTTP Request Rate (per second)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s"
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 6
-      },
-      "id": 2,
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"photo-service-via-lb\"}[5m])) by (le, method, uri))",
-          "legendFormat": "{{method}} {{uri}}"
-        }
-      ],
-      "title": "HTTP Response Time (P95)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 0.05
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 24,
-        "x": 0,
-        "y": 14
-      },
-      "id": 200,
-      "targets": [
-        {
-          "expr": "sum(rate(http_server_requests_seconds_count{job=\"photo-service-via-lb\", status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{job=\"photo-service-via-lb\"}[5m]))",
-          "legendFormat": "5xx Error Rate"
-        }
-      ],
-      "title": "HTTP 5xx Error Rate",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 18
-      },
-      "id": 102,
-      "panels": [],
-      "title": "비즈니스 메트릭",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "cpm"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 19
-      },
-      "id": 3,
-      "targets": [
-        {
-          "expr": "(sum(rate(photo_service_auth_login_total{job=\"photo-service-via-lb\", result=\"success\"}[5m]))) * 60",
-          "legendFormat": "Success"
-        },
-        {
-          "expr": "(sum(rate(photo_service_auth_login_total{job=\"photo-service-via-lb\", result=\"failure\"}[5m]))) * 60",
-          "legendFormat": "Failure"
-        }
-      ],
-      "title": "Login Success / Failure (/min)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "cpm"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 19
-      },
-      "id": 4,
-      "targets": [
-        {
-          "expr": "(sum(rate(photo_service_photo_upload_total{job=\"photo-service-via-lb\", result=\"success\"}[5m]))) * 60",
-          "legendFormat": "Success"
-        },
-        {
-          "expr": "(sum(rate(photo_service_photo_upload_total{job=\"photo-service-via-lb\", result=\"failure\"}[5m]))) * 60",
-          "legendFormat": "Failure"
-        }
-      ],
-      "title": "Photo Upload Success / Failure (/min)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "cpm"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 19
-      },
-      "id": 9,
-      "targets": [
-        {
-          "expr": "(sum(rate(photo_service_album_share_total{job=\"photo-service-via-lb\", result=\"success\"}[5m]))) * 60",
-          "legendFormat": "Success"
-        },
-        {
-          "expr": "(sum(rate(photo_service_album_share_total{job=\"photo-service-via-lb\", result=\"failure\"}[5m]))) * 60",
-          "legendFormat": "Failure"
-        }
-      ],
-      "title": "Album Share Success / Failure (/min)",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 27
-      },
-      "id": 103,
-      "panels": [],
-      "title": "인프라",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "max": 1,
-          "min": 0,
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 0,
-        "y": 28
-      },
-      "id": 12,
-      "targets": [
-        {
-          "expr": "system_cpu_usage{job=\"photo-service-was\"}",
-          "legendFormat": "{{instance_ip}} - System CPU"
-        },
-        {
-          "expr": "process_cpu_usage{job=\"photo-service-was\"}",
-          "legendFormat": "{{instance_ip}} - JVM CPU"
-        }
-      ],
-      "title": "WAS CPU Usage (%)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": ".*Max.*"
+    "meta": {
+        "type": "db",
+        "canSave": true,
+        "canEdit": true,
+        "canAdmin": true,
+        "canStar": true,
+        "canDelete": true,
+        "slug": "photo-service-monitoring",
+        "url": "/d/37fb9f76-1e4d-4f26-b0e4-01e698987948/photo-service-monitoring",
+        "expires": "0001-01-01T00:00:00Z",
+        "created": "2026-02-08T01:59:50Z",
+        "updated": "2026-02-27T00:40:39Z",
+        "updatedBy": "admin",
+        "createdBy": "admin",
+        "version": 13,
+        "hasAcl": false,
+        "isFolder": false,
+        "apiVersion": "v0alpha1",
+        "folderId": 0,
+        "folderUid": "",
+        "folderTitle": "General",
+        "folderUrl": "",
+        "provisioned": false,
+        "provisionedExternalId": "",
+        "annotationsPermissions": {
+            "dashboard": {
+                "canAdd": true,
+                "canEdit": true,
+                "canDelete": true
             },
-            "properties": [
-              {
-                "id": "custom.lineStyle",
-                "value": {
-                  "dash": [
-                    10,
-                    10
-                  ],
-                  "fill": "dash"
+            "organization": {
+                "canAdd": true,
+                "canEdit": true,
+                "canDelete": true
+            }
+        }
+    },
+    "dashboard": {
+        "annotations": {
+            "list": [
+                {
+                    "builtIn": 1,
+                    "datasource": {
+                        "type": "grafana",
+                        "uid": "-- Grafana --"
+                    },
+                    "enable": true,
+                    "hide": true,
+                    "iconColor": "rgba(0, 211, 255, 1)",
+                    "name": "Annotations & Alerts",
+                    "type": "dashboard"
                 }
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 0
-              }
             ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 6,
-        "y": 28
-      },
-      "id": 14,
-      "targets": [
-        {
-          "expr": "jvm_memory_used_bytes{job=\"photo-service-was\", area=\"heap\"}",
-          "legendFormat": "{{instance_ip}} Heap Used"
         },
-        {
-          "expr": "jvm_memory_max_bytes{job=\"photo-service-was\", area=\"heap\"}",
-          "legendFormat": "{{instance_ip}} Heap Max"
-        }
-      ],
-      "title": "JVM Heap Memory (per Instance)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 12,
-        "y": 28
-      },
-      "id": 10,
-      "targets": [
-        {
-          "expr": "hikaricp_connections_active{job=\"photo-service-via-lb\"}",
-          "legendFormat": "Active"
+        "editable": true,
+        "fiscalYearStartMonth": 0,
+        "graphTooltip": 0,
+        "id": 1,
+        "links": [],
+        "panels": [
+            {
+                "collapsed": false,
+                "gridPos": {
+                    "h": 1,
+                    "w": 24,
+                    "x": 0,
+                    "y": 0
+                },
+                "id": 100,
+                "panels": [],
+                "title": "\uc11c\ube44\uc2a4 \ud604\ud669",
+                "type": "row"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "mappings": [],
+                        "max": 5,
+                        "min": 2,
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        }
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 4,
+                    "w": 6,
+                    "x": 0,
+                    "y": 1
+                },
+                "id": 13,
+                "options": {
+                    "colorMode": "value",
+                    "graphMode": "area",
+                    "justifyMode": "auto",
+                    "orientation": "auto",
+                    "percentChangeColorMode": "standard",
+                    "reduceOptions": {
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "",
+                        "values": false
+                    },
+                    "showPercentChange": false,
+                    "textMode": "auto",
+                    "wideLayout": true
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "count(up{job=\"photo-service-was\"} == 1)",
+                        "legendFormat": "Active Instances",
+                        "refId": "A"
+                    }
+                ],
+                "title": "WAS Instance Count",
+                "type": "stat"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "decimals": 1,
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "reqps"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 4,
+                    "w": 6,
+                    "x": 6,
+                    "y": 1
+                },
+                "id": 16,
+                "options": {
+                    "colorMode": "value",
+                    "graphMode": "area",
+                    "justifyMode": "auto",
+                    "orientation": "auto",
+                    "percentChangeColorMode": "standard",
+                    "reduceOptions": {
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "",
+                        "values": false
+                    },
+                    "showPercentChange": false,
+                    "textMode": "auto",
+                    "wideLayout": true
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "editorMode": "code",
+                        "expr": "sum(rate(http_server_requests_seconds_count{job=\"photo-service-was\"}[1m]))",
+                        "legendFormat": "Total RPS",
+                        "range": true,
+                        "refId": "A"
+                    }
+                ],
+                "title": "Total RPS",
+                "type": "stat"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        }
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 4,
+                    "w": 6,
+                    "x": 12,
+                    "y": 1
+                },
+                "id": 5,
+                "options": {
+                    "minVizHeight": 75,
+                    "minVizWidth": 75,
+                    "orientation": "auto",
+                    "reduceOptions": {
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "",
+                        "values": false
+                    },
+                    "showThresholdLabels": false,
+                    "showThresholdMarkers": true,
+                    "sizing": "auto"
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "sum(photo_service_active_users{job=\"photo-service-was\"})",
+                        "legendFormat": "Active Users",
+                        "refId": "A"
+                    }
+                ],
+                "title": "Active Users (Concurrent)",
+                "type": "gauge"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        }
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 4,
+                    "w": 6,
+                    "x": 18,
+                    "y": 1
+                },
+                "id": 6,
+                "options": {
+                    "colorMode": "value",
+                    "graphMode": "area",
+                    "justifyMode": "auto",
+                    "orientation": "auto",
+                    "percentChangeColorMode": "standard",
+                    "reduceOptions": {
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "",
+                        "values": false
+                    },
+                    "showPercentChange": false,
+                    "textMode": "auto",
+                    "wideLayout": true
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "sum(photo_service_auth_signup_total{job=\"photo-service-was\"})",
+                        "legendFormat": "Total Signups",
+                        "refId": "A"
+                    }
+                ],
+                "title": "Signup Total",
+                "type": "stat"
+            },
+            {
+                "collapsed": false,
+                "gridPos": {
+                    "h": 1,
+                    "w": 24,
+                    "x": 0,
+                    "y": 5
+                },
+                "id": 101,
+                "panels": [],
+                "title": "\uc694\uccad & \uc751\ub2f5",
+                "type": "row"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "reqps"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 0,
+                    "y": 6
+                },
+                "id": 1,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "sum(rate(http_server_requests_seconds_count{job=\"photo-service-was\"}[1m])) by (method, uri, status)",
+                        "legendFormat": "{{method}} {{uri}} {{status}}",
+                        "refId": "A"
+                    }
+                ],
+                "title": "HTTP Request Rate (per second)",
+                "type": "timeseries"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "s"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 12,
+                    "y": 6
+                },
+                "id": 2,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"photo-service-was\", uri!~\"/actuator.*\"}[5m])) by (le, method, uri))",
+                        "legendFormat": "{{method}} {{uri}}",
+                        "refId": "A"
+                    }
+                ],
+                "title": "HTTP Response Time (P95)",
+                "type": "timeseries"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "max": 1,
+                        "min": 0,
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 0.05
+                                }
+                            ]
+                        },
+                        "unit": "percentunit"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 4,
+                    "w": 24,
+                    "x": 0,
+                    "y": 14
+                },
+                "id": 200,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "sum(rate(http_server_requests_seconds_count{job=\"photo-service-was\", status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{job=\"photo-service-was\"}[5m]))",
+                        "legendFormat": "5xx Error Rate",
+                        "refId": "A"
+                    }
+                ],
+                "title": "HTTP 5xx Error Rate",
+                "type": "timeseries"
+            },
+            {
+                "collapsed": false,
+                "gridPos": {
+                    "h": 1,
+                    "w": 24,
+                    "x": 0,
+                    "y": 18
+                },
+                "id": 102,
+                "panels": [],
+                "title": "\ube44\uc988\ub2c8\uc2a4 \uba54\ud2b8\ub9ad",
+                "type": "row"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "cpm"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 0,
+                    "y": 19
+                },
+                "id": 3,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "(sum(rate(photo_service_auth_login_total{job=\"photo-service-was\", result=\"success\"}[5m]))) * 60",
+                        "legendFormat": "Success",
+                        "refId": "A"
+                    },
+                    {
+                        "expr": "(sum(rate(photo_service_auth_login_total{job=\"photo-service-was\", result=\"failure\"}[5m]))) * 60",
+                        "legendFormat": "Failure",
+                        "refId": "B"
+                    }
+                ],
+                "title": "Login Success / Failure (/min)",
+                "type": "timeseries"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "cpm"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 8,
+                    "y": 19
+                },
+                "id": 4,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "(sum(rate(photo_service_photo_upload_total{job=\"photo-service-was\", result=\"success\"}[5m]))) * 60",
+                        "legendFormat": "Success",
+                        "refId": "A"
+                    },
+                    {
+                        "expr": "(sum(rate(photo_service_photo_upload_total{job=\"photo-service-was\", result=\"failure\"}[5m]))) * 60",
+                        "legendFormat": "Failure",
+                        "refId": "B"
+                    }
+                ],
+                "title": "Photo Upload Success / Failure (/min)",
+                "type": "timeseries"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "cpm"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 16,
+                    "y": 19
+                },
+                "id": 9,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "(sum(rate(photo_service_album_share_total{job=\"photo-service-was\", result=\"success\"}[5m]))) * 60",
+                        "legendFormat": "Success",
+                        "refId": "A"
+                    },
+                    {
+                        "expr": "(sum(rate(photo_service_album_share_total{job=\"photo-service-was\", result=\"failure\"}[5m]))) * 60",
+                        "legendFormat": "Failure",
+                        "refId": "B"
+                    }
+                ],
+                "title": "Album Share Success / Failure (/min)",
+                "type": "timeseries"
+            },
+            {
+                "collapsed": false,
+                "gridPos": {
+                    "h": 1,
+                    "w": 24,
+                    "x": 0,
+                    "y": 27
+                },
+                "id": 103,
+                "panels": [],
+                "title": "\uc778\ud504\ub77c",
+                "type": "row"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "max": 1,
+                        "min": 0,
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "percentunit"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 6,
+                    "x": 0,
+                    "y": 28
+                },
+                "id": 12,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "system_cpu_usage{job=\"photo-service-was\"}",
+                        "legendFormat": "{{instance_ip}} - System CPU",
+                        "refId": "A"
+                    },
+                    {
+                        "expr": "process_cpu_usage{job=\"photo-service-was\"}",
+                        "legendFormat": "{{instance_ip}} - JVM CPU",
+                        "refId": "B"
+                    }
+                ],
+                "title": "WAS CPU Usage (%)",
+                "type": "timeseries"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "bytes"
+                    },
+                    "overrides": [
+                        {
+                            "matcher": {
+                                "id": "byRegexp",
+                                "options": ".*Max.*"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.lineStyle",
+                                    "value": {
+                                        "dash": [
+                                            10,
+                                            10
+                                        ],
+                                        "fill": "dash"
+                                    }
+                                },
+                                {
+                                    "id": "custom.fillOpacity",
+                                    "value": 0
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 6,
+                    "x": 6,
+                    "y": 28
+                },
+                "id": 14,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "jvm_memory_used_bytes{job=\"photo-service-was\", area=\"heap\"}",
+                        "legendFormat": "{{instance_ip}} Heap Used",
+                        "refId": "A"
+                    },
+                    {
+                        "expr": "sum without(id)(jvm_memory_max_bytes{job=\"photo-service-was\", area=\"heap\"} > 0)",
+                        "legendFormat": "{{instance_ip}} Heap Max",
+                        "refId": "B"
+                    }
+                ],
+                "title": "JVM Heap Memory",
+                "type": "timeseries"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        }
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 6,
+                    "x": 12,
+                    "y": 28
+                },
+                "id": 10,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "hikaricp_connections_active{job=\"photo-service-was\"}",
+                        "legendFormat": "Active",
+                        "refId": "A"
+                    },
+                    {
+                        "expr": "hikaricp_connections_idle{job=\"photo-service-was\"}",
+                        "legendFormat": "Idle",
+                        "refId": "B"
+                    },
+                    {
+                        "expr": "hikaricp_connections_max{job=\"photo-service-was\"}",
+                        "legendFormat": "Max",
+                        "refId": "C"
+                    }
+                ],
+                "title": "DB Connection Pool",
+                "type": "timeseries"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "yellow",
+                                    "value": 200
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 250
+                                }
+                            ]
+                        }
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 6,
+                    "x": 18,
+                    "y": 28
+                },
+                "id": 201,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "jvm_threads_live_threads{job=\"photo-service-was\"}",
+                        "legendFormat": "{{instance_ip}}",
+                        "refId": "A"
+                    }
+                ],
+                "title": "JVM Thread Count",
+                "type": "timeseries"
+            },
+            {
+                "collapsed": false,
+                "gridPos": {
+                    "h": 1,
+                    "w": 24,
+                    "x": 0,
+                    "y": 36
+                },
+                "id": 104,
+                "panels": [],
+                "title": "\uc131\ub2a5 \uc0c1\uc138",
+                "type": "row"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "reqps"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 0,
+                    "y": 37
+                },
+                "id": 15,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "sum(rate(http_server_requests_seconds_count{job=\"photo-service-was\"}[1m])) by (instance_ip)",
+                        "legendFormat": "{{instance_ip}}",
+                        "refId": "A"
+                    }
+                ],
+                "title": "RPS per Instance",
+                "type": "timeseries"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "s"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 8,
+                    "y": 37
+                },
+                "id": 7,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "histogram_quantile(0.95, sum(rate(photo_service_photo_upload_duration_seconds_bucket{job=\"photo-service-was\"}[5m])) by (le))",
+                        "legendFormat": "P95 Upload Time",
+                        "refId": "A"
+                    }
+                ],
+                "title": "Photo Upload Duration (P95)",
+                "type": "timeseries"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "s"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 16,
+                    "y": 37
+                },
+                "id": 11,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "histogram_quantile(0.95, sum(rate(photo_service_storage_upload_duration_seconds_bucket{job=\"photo-service-was\"}[5m])) by (le))",
+                        "legendFormat": "Storage Upload P95",
+                        "refId": "A"
+                    },
+                    {
+                        "expr": "histogram_quantile(0.95, sum(rate(photo_service_storage_presigned_url_duration_seconds_bucket{job=\"photo-service-was\"}[5m])) by (le))",
+                        "legendFormat": "Presigned URL P95",
+                        "refId": "B"
+                    }
+                ],
+                "title": "Object Storage Upload Duration (P95)",
+                "type": "timeseries"
+            },
+            {
+                "collapsed": false,
+                "gridPos": {
+                    "h": 1,
+                    "w": 24,
+                    "x": 0,
+                    "y": 45
+                },
+                "id": 105,
+                "panels": [],
+                "title": "JVM \uc0c1\uc138",
+                "type": "row"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "s"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 0,
+                    "y": 46
+                },
+                "id": 202,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "rate(jvm_gc_pause_seconds_sum{job=\"photo-service-was\"}[5m])",
+                        "legendFormat": "{{instance_ip}} GC Time/sec",
+                        "refId": "A"
+                    },
+                    {
+                        "expr": "jvm_gc_pause_seconds_max{job=\"photo-service-was\"}",
+                        "legendFormat": "{{instance_ip}} Max Pause",
+                        "refId": "B"
+                    }
+                ],
+                "title": "GC Pause Time",
+                "type": "timeseries"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "max": 1,
+                        "min": 0,
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "yellow",
+                                    "value": 0.05
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 0.1
+                                }
+                            ]
+                        },
+                        "unit": "percentunit"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 8,
+                    "y": 46
+                },
+                "id": 203,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "jvm_gc_overhead{job=\"photo-service-was\"}",
+                        "legendFormat": "{{instance_ip}}",
+                        "refId": "A"
+                    }
+                ],
+                "title": "GC Overhead (%)",
+                "type": "timeseries"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "bytes"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 16,
+                    "y": 46
+                },
+                "id": 204,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "jvm_memory_used_bytes{job=\"photo-service-was\", area=\"nonheap\"}",
+                        "legendFormat": "{{instance_ip}} Non-Heap Used",
+                        "refId": "A"
+                    },
+                    {
+                        "expr": "jvm_memory_committed_bytes{job=\"photo-service-was\", area=\"nonheap\"}",
+                        "legendFormat": "{{instance_ip}} Non-Heap Committed",
+                        "refId": "B"
+                    }
+                ],
+                "title": "JVM Non-Heap Memory (Metaspace)",
+                "type": "timeseries"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        }
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 0,
+                    "y": 54
+                },
+                "id": 205,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "sum(jvm_threads_states_threads{job=\"photo-service-was\"}) by (state)",
+                        "legendFormat": "{{state}}",
+                        "refId": "A"
+                    }
+                ],
+                "title": "JVM Thread States",
+                "type": "timeseries"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "cpm"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 8,
+                    "y": 54
+                },
+                "id": 206,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "sum(rate(logback_events_total{job=\"photo-service-was\", level=\"error\"}[5m])) * 60",
+                        "legendFormat": "Error",
+                        "refId": "A"
+                    },
+                    {
+                        "expr": "sum(rate(logback_events_total{job=\"photo-service-was\", level=\"warn\"}[5m])) * 60",
+                        "legendFormat": "Warn",
+                        "refId": "B"
+                    }
+                ],
+                "title": "Log Error/Warn Rate (/min)",
+                "type": "timeseries"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "ffckufsl3hs74a"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisBorderShow": false,
+                            "axisCenteredZero": false,
+                            "axisColorMode": "text",
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "barWidthFactor": 0.6,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "insertNulls": false,
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "showValues": false,
+                            "spanNulls": false,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "off"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "s"
+                    },
+                    "overrides": [
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Pending Threads"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.axisPlacement",
+                                    "value": "right"
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "short"
+                                },
+                                {
+                                    "id": "custom.axisLabel",
+                                    "value": "Pending Threads"
+                                },
+                                {
+                                    "id": "custom.drawStyle",
+                                    "value": "bars"
+                                },
+                                {
+                                    "id": "custom.fillOpacity",
+                                    "value": 30
+                                },
+                                {
+                                    "id": "color",
+                                    "value": {
+                                        "fixedColor": "red",
+                                        "mode": "fixed"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 16,
+                    "y": 54
+                },
+                "id": 207,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom",
+                        "showLegend": true
+                    },
+                    "tooltip": {
+                        "hideZeros": false,
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "12.4.0",
+                "targets": [
+                    {
+                        "expr": "hikaricp_connections_acquire_seconds_max{job=\"photo-service-was\"}",
+                        "legendFormat": "Acquire Time (Max)",
+                        "refId": "A"
+                    },
+                    {
+                        "expr": "hikaricp_connections_creation_seconds_max{job=\"photo-service-was\"}",
+                        "legendFormat": "Creation Time (Max)",
+                        "refId": "B"
+                    },
+                    {
+                        "expr": "hikaricp_connections_pending{job=\"photo-service-was\"}",
+                        "legendFormat": "Pending Threads",
+                        "refId": "C"
+                    }
+                ],
+                "title": "HikariCP Connection Timing & Pending",
+                "type": "timeseries"
+            }
+        ],
+        "preload": false,
+        "refresh": "",
+        "schemaVersion": 42,
+        "tags": [
+            "photo-service"
+        ],
+        "templating": {
+            "list": []
         },
-        {
-          "expr": "hikaricp_connections_idle{job=\"photo-service-via-lb\"}",
-          "legendFormat": "Idle"
+        "time": {
+            "from": "now-6h",
+            "to": "now"
         },
-        {
-          "expr": "hikaricp_connections_max{job=\"photo-service-via-lb\"}",
-          "legendFormat": "Max"
-        }
-      ],
-      "title": "DB Connection Pool",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 200
-              },
-              {
-                "color": "red",
-                "value": 250
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 18,
-        "y": 28
-      },
-      "id": 201,
-      "targets": [
-        {
-          "expr": "jvm_threads_live_threads{job=\"photo-service-was\"}",
-          "legendFormat": "{{instance_ip}}"
-        }
-      ],
-      "title": "JVM Thread Count",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 36
-      },
-      "id": 104,
-      "panels": [],
-      "title": "성능 상세",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 37
-      },
-      "id": 15,
-      "targets": [
-        {
-          "expr": "sum(rate(http_server_requests_seconds_count{job=\"photo-service-was\"}[1m])) by (instance_ip)",
-          "legendFormat": "{{instance_ip}}"
-        }
-      ],
-      "title": "RPS per Instance",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s"
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 37
-      },
-      "id": 7,
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, sum(rate(photo_service_photo_upload_duration_seconds_bucket{job=\"photo-service-via-lb\"}[5m])) by (le))",
-          "legendFormat": "P95 Upload Time"
-        }
-      ],
-      "title": "Photo Upload Duration (P95)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s"
-        }
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 37
-      },
-      "id": 11,
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, sum(rate(photo_service_storage_upload_duration_seconds_bucket{job=\"photo-service-via-lb\"}[5m])) by (le))",
-          "legendFormat": "Storage Upload P95"
-        },
-        {
-          "expr": "histogram_quantile(0.95, sum(rate(photo_service_storage_presigned_url_duration_seconds_bucket{job=\"photo-service-via-lb\"}[5m])) by (le))",
-          "legendFormat": "Presigned URL P95"
-        }
-      ],
-      "title": "Object Storage Upload Duration (P95)",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 45
-      },
-      "id": 105,
-      "panels": [],
-      "title": "JVM 상세",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 46
-      },
-      "id": 202,
-      "targets": [
-        {
-          "expr": "rate(jvm_gc_pause_seconds_sum{job=\"photo-service-was\"}[5m])",
-          "legendFormat": "{{instance_ip}} GC Time/sec"
-        },
-        {
-          "expr": "jvm_gc_pause_seconds_max{job=\"photo-service-was\"}",
-          "legendFormat": "{{instance_ip}} Max Pause"
-        }
-      ],
-      "title": "GC Pause Time",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 0.05
-              },
-              {
-                "color": "red",
-                "value": 0.1
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 46
-      },
-      "id": 203,
-      "targets": [
-        {
-          "expr": "jvm_gc_overhead{job=\"photo-service-was\"}",
-          "legendFormat": "{{instance_ip}}"
-        }
-      ],
-      "title": "GC Overhead (%)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 46
-      },
-      "id": 204,
-      "targets": [
-        {
-          "expr": "jvm_memory_used_bytes{job=\"photo-service-was\", area=\"nonheap\"}",
-          "legendFormat": "{{instance_ip}} Non-Heap Used"
-        },
-        {
-          "expr": "jvm_memory_committed_bytes{job=\"photo-service-was\", area=\"nonheap\"}",
-          "legendFormat": "{{instance_ip}} Non-Heap Committed"
-        }
-      ],
-      "title": "JVM Non-Heap Memory (Metaspace)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 54
-      },
-      "id": 205,
-      "targets": [
-        {
-          "expr": "sum(jvm_threads_states_threads{job=\"photo-service-was\"}) by (state)",
-          "legendFormat": "{{state}}"
-        }
-      ],
-      "title": "JVM Thread States",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "cpm"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 54
-      },
-      "id": 206,
-      "targets": [
-        {
-          "expr": "sum(rate(logback_events_total{job=\"photo-service-was\", level=\"error\"}[5m])) * 60",
-          "legendFormat": "Error"
-        },
-        {
-          "expr": "sum(rate(logback_events_total{job=\"photo-service-was\", level=\"warn\"}[5m])) * 60",
-          "legendFormat": "Warn"
-        }
-      ],
-      "title": "Log Error/Warn Rate (/min)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "ffckufsl3hs74a"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 54
-      },
-      "id": 207,
-      "targets": [
-        {
-          "expr": "hikaricp_connections_acquire_seconds_max{job=\"photo-service-via-lb\"}",
-          "legendFormat": "Acquire Time (Max)"
-        },
-        {
-          "expr": "hikaricp_connections_creation_seconds_max{job=\"photo-service-via-lb\"}",
-          "legendFormat": "Creation Time (Max)"
-        },
-        {
-          "expr": "hikaricp_connections_pending{job=\"photo-service-via-lb\"}",
-          "legendFormat": "Pending Threads"
-        }
-      ],
-      "title": "HikariCP Connection Timing & Pending",
-      "type": "timeseries"
+        "timepicker": {},
+        "timezone": "Asia/Seoul",
+        "title": "Photo Service Monitoring",
+        "uid": "37fb9f76-1e4d-4f26-b0e4-01e698987948",
+        "version": 13,
+        "weekStart": ""
     }
-  ],
-  "schemaVersion": 39,
-  "tags": [
-    "photo-service"
-  ],
-  "timezone": "Asia/Seoul",
-  "title": "Photo Service Monitoring",
-  "uid": "37fb9f76-1e4d-4f26-b0e4-01e698987948"
 }
